@@ -430,7 +430,7 @@ Traditional extreme value bias-variance trade-off:
 
 Surprisingly, very little work in the area.
 
-- @Wang:2016 suggest using combinations of goodness-of-fit tests (such as Anderson--Darling or Kolmogorov--Smirnov).
+- @Wang:2016 suggest combining multiple goodness-of-fit tests (such as Anderson--Darling or Kolmogorov--Smirnov).
 - unpublished work of @Dkengne:2020 suggests parameter stability plot built using max-stability.
 
 
@@ -450,7 +450,7 @@ Consider $nm$ block maxima for $n, m \in \mathbb{N}.$  We gather observations in
 #| eval: true
 #| echo: false
 #| label: tbl-gust-block
-#| tbl-cap: "Blocks of size $m=4$ from daily maxima wind gusts (in km/h)."
+#| tbl-cap: "Blocks of size $m=4$ from daily maxima wind gusts (mph)."
 tinytable::tt(
   x = as.data.frame(head(build.blocks(gust, block = 1, m = 4), 5)),
   row.names = NULL,
@@ -509,7 +509,7 @@ where
 - ${\boldsymbol{\vartheta}}_0 = (\mu, \sigma, \xi)$ are the parameters for $X_{i, (1)} \leq \cdots \le X_{i, (m-1)}.$
 - ${\boldsymbol{\vartheta}}_m$ are the parameters of the largest observation $X_{i, (m)}.$
 
-Under the null hypothesis of max-stability, ${\boldsymbol{\vartheta}}_m=(\mu_m, \sigma_m, \xi) = g(\boldsymbol{\vartheta}_0),$ say.
+Under the null hypothesis of max-stability, ${\boldsymbol{\vartheta}}_m=(\mu_m, \sigma_m, \xi) = g(\boldsymbol{\vartheta}_0).$
 :::
 
 ## Rounding and left-censoring {.smaller}
@@ -531,7 +531,7 @@ The likelihood contribution from a single vector $x_{i,(1)}, \ldots, x_{i,(m)}$ 
 \begin{align*}
 L_i(\boldsymbol{\vartheta}_0, \boldsymbol{\vartheta}_m)& = L_{i,m}(\boldsymbol{\vartheta}_m)^{w_{i,(m)}(\boldsymbol{\vartheta}_m)} F(u; \boldsymbol{\vartheta}_m)^{1-w_{i,(m)}(\boldsymbol{\vartheta}_m)} \\& \times \prod_{j=1}^{m-1} \frac{L_{i,j}(\boldsymbol{\vartheta}_0)^{w_{i,(j)}(\boldsymbol{\vartheta}_0)} F(u; \boldsymbol{\vartheta}_0)^{1-w_{i,(j)}(\boldsymbol{\vartheta}_0)}}{F \left(\max\{u, x_{i,(m)} + \delta/2\}; \boldsymbol{\vartheta}_0\right)}
 \end{align*}
-where the weight $w_{i,j}(\boldsymbol{\vartheta})$ indicates the probability that  $X^*_{i,j} > u$ (expected likelihood) [Section 2.2 of @Varty:2021]. 
+where the weight $w_{i,j}(\boldsymbol{\vartheta})$ indicates the probability that  $X^*_{i,j} > u$ (expected likelihood) [cf. Section 2.2 of @Varty:2021]. 
 
 
 ## Alternative hypotheses
@@ -677,6 +677,18 @@ stargazer::stargazer(format(f, quote=FALSE, justify="right"), type="html")
 - There is a small size distortion (up to about 5%) for alternative $A_3$ in small samples.
 
 
+## Stationary setting
+
+The extremal types theorem extends to stationary time series [@Leadbetter:1974;@Leadbetter.Lindgren.Rootzen:1983;@Leadbetter:1983].
+
+Under a  condition $D(u_n)$ and for extremal index $\theta \in (0,1],$ we get instead
+\begin{align*}
+\lim_{m \to \infty} G^{\theta m}(c_{m}x+d_{m})&= F(x)
+\end{align*}
+or equivalently
+\begin{align*}
+\lim_{m \to \infty} G^{m}(c_{\theta m}x+d_{\theta m}) &= F(x).
+\end{align*}
 
 ## Stationary sequences with extremal clustering
 
@@ -696,19 +708,6 @@ The margins are standard Gumbel, $X_i \sim \mathsf{GEV}(0,1,0),$ while the distr
 :::
 
 
-
-## Stationary setting
-
-The extremal types theorem extends to stationary time series [@Leadbetter:1974;@Leadbetter.Lindgren.Rootzen:1983;@Leadbetter:1983].
-
-Under a  condition $D(u_n)$ and for extremal index $\theta \in (0,1],$ we get instead
-\begin{align*}
-\lim_{m \to \infty} G^{\theta m}(c_{m}x+d_{m})&= F(x)
-\end{align*}
-or equivalently
-\begin{align*}
-\lim_{m \to \infty} G^{m}(c_{\theta m}x+d_{\theta m}) &= F(x).
-\end{align*}
 
 
 
@@ -1213,7 +1212,7 @@ df_pvals_dch <- array2DF(pvals_chd, responseName = "pvalue") |>
 
 library(tinytable)
 dfc_tab <- data.frame(
-  block = c("\\(m=1\\)", "\\(m=2\\)", "\\(m=4\\)", "\\(m=8\\)"),
+  block = c("1", "2", "4", "8"),
   round(cbind(pvals_chd[,, 1], pvals_chd[,, 2]), 3)
 )
 # dfc_tab
@@ -1224,8 +1223,8 @@ tt_dfc |>
   format_tt(escape = FALSE) |>
   group_tt(
     j = list(
-      "\\(c=2\\)" = 2:4,
-      "\\(c=4\\)" = 5:6
+      "\\(m=2\\)" = 2:4,
+      "\\(m=4\\)" = 5:6
     )
   )
 ```
@@ -1359,7 +1358,7 @@ gg50dens
 ## Inference for extremes
 
 
-Use GEV model fitted to blocks of size $4$ days to calculate risk measures for the maximum 50 years wind gust, by using the max-stability relationship with $m=8 \times 50.$ 
+Use GEV model fitted to blocks of size $4$ days to calculate risk measures for the maximum 50 years wind gust, obtained through max-stability.
 
 - The estimated median of half-century maximum daily wind gust is 86.73 miles per hour
 - 95% profile-based confidence intervals: (83.06, 105.07) mph.
@@ -1767,7 +1766,7 @@ We propose likelihood ratio tests for testing max-stability for blocks of size $
 - Build block of $n/m \times m$ ordered data from maxima.
 - Check fit to largest (max of $m$) and use max-stability to detect departures.
 - Simulation studies show the test is powerful even in small samples.
-- The test with a single parameter seems more powerful than competitors, with lower values of $m$.
+- The test with alternative $A_1$ seems more powerful than competitors, with lower values of $m$.
 
 Diagnostic plots based on bootstrap to account for goodness-of-fit.
 

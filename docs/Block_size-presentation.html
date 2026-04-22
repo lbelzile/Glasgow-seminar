@@ -180,7 +180,7 @@ Figure&nbsp;1: Daily maximum wind gust speed in Cheeseboro, California, for Janu
 </p></section>
 <section id="extremal-types-theorem" class="slide level2">
 <h2>Extremal types theorem</h2>
-<p>The justification for using the GEV comes from <span class="citation" data-cites="Fisher.Tippett:1928">Fisher and Tippett (<a href="#/references" role="doc-biblioref" onclick="">1928</a>)</span>, <span class="citation" data-cites="vonMises:1936">Mises (<a href="#/references" role="doc-biblioref" onclick="">1936</a>)</span>, <span class="citation" data-cites="Gnedenko:1943">Gnedenko (<a href="#/references" role="doc-biblioref" onclick="">1943</a>)</span>.</p>
+<p>The justification for using the GEV comes from <span class="citation" data-cites="Fisher.Tippett:1928">Fisher and Tippett (<a href="#/references" role="doc-biblioref" onclick="">1928</a>)</span>, <span class="citation" data-cites="vonMises:1936"><span class="nocase">von Mises</span> (<a href="#/references" role="doc-biblioref" onclick="">1936</a>)</span>, <span class="citation" data-cites="Gnedenko:1943">Gnedenko (<a href="#/references" role="doc-biblioref" onclick="">1943</a>)</span>.</p>
 <p>If <span class="math inline">\(G\)</span> is a distribution function and there exist location and scaling sequences <span class="math inline">\(d_m\)</span> and <span class="math inline">\(c_m&gt;0\)</span> such that the maximum of <span class="math inline">\(m\)</span> observations has a non-degenerate limiting distribution <span class="math display">\[
 \lim_{m \to \infty}G^m(c_mx+d_m) = F(x)
 \]</span> then <span class="math inline">\(F(x)\)</span> must be a GEV distribution function.</p>
@@ -251,7 +251,7 @@ Figure&nbsp;3: GEV parameters based on max-stable (dashed), and the penultimate 
 <h2>Literature review</h2>
 <p>Surprisingly, very little work in the area.</p>
 <ul>
-<li><span class="citation" data-cites="Wang:2016">Wang et al. (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> suggest using combinations of goodness-of-fit tests (such as Anderson–Darling or Kolmogorov–Smirnov).</li>
+<li><span class="citation" data-cites="Wang:2016">Wang et al. (<a href="#/references" role="doc-biblioref" onclick="">2016</a>)</span> suggest combining multiple goodness-of-fit tests (such as Anderson–Darling or Kolmogorov–Smirnov).</li>
 <li>unpublished work of <span class="citation" data-cites="Dkengne:2020">Dkengne et al. (<a href="#/references" role="doc-biblioref" onclick="">2020</a>)</span> suggests parameter stability plot built using max-stability.</li>
 </ul>
 </section>
@@ -264,7 +264,7 @@ Figure&nbsp;3: GEV parameters based on max-stable (dashed), and the penultimate 
 <div id="tbl-gust-block" class="cell quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-tbl">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-gust-block-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Blocks of size <span class="math inline">\(m=4\)</span> from daily maxima wind gusts (in km/h).
+Table&nbsp;1: Blocks of size <span class="math inline">\(m=4\)</span> from daily maxima wind gusts (mph).
 </figcaption>
 <div aria-describedby="tbl-gust-block-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -382,7 +382,7 @@ f_{(m)}(x) &amp;= m F(x; \mu, \sigma, \xi)^{m-1}f(x; \mu, \sigma, \xi) \\
 <li><span class="math inline">\({\boldsymbol{\vartheta}}_0 = (\mu, \sigma, \xi)\)</span> are the parameters for <span class="math inline">\(X_{i, (1)} \leq \cdots \le X_{i, (m-1)}.\)</span></li>
 <li><span class="math inline">\({\boldsymbol{\vartheta}}_m\)</span> are the parameters of the largest observation <span class="math inline">\(X_{i, (m)}.\)</span></li>
 </ul>
-<p>Under the null hypothesis of max-stability, <span class="math inline">\({\boldsymbol{\vartheta}}_m=(\mu_m, \sigma_m, \xi) = g(\boldsymbol{\vartheta}_0),\)</span> say.</p>
+<p>Under the null hypothesis of max-stability, <span class="math inline">\({\boldsymbol{\vartheta}}_m=(\mu_m, \sigma_m, \xi) = g(\boldsymbol{\vartheta}_0).\)</span></p>
 </div>
 </section>
 <section id="rounding-and-left-censoring" class="slide level2 smaller">
@@ -399,7 +399,7 @@ F(x_{i,(j)}+\delta/2; \boldsymbol{\vartheta})- F(\max\{x_{i,(j)}-\delta/2, u\}; 
 <h2>Joint likelihood with censoring</h2>
 <p>The likelihood contribution from a single vector <span class="math inline">\(x_{i,(1)}, \ldots, x_{i,(m)}\)</span> is <span class="math display">\[\begin{align*}
 L_i(\boldsymbol{\vartheta}_0, \boldsymbol{\vartheta}_m)&amp; = L_{i,m}(\boldsymbol{\vartheta}_m)^{w_{i,(m)}(\boldsymbol{\vartheta}_m)} F(u; \boldsymbol{\vartheta}_m)^{1-w_{i,(m)}(\boldsymbol{\vartheta}_m)} \\&amp; \times \prod_{j=1}^{m-1} \frac{L_{i,j}(\boldsymbol{\vartheta}_0)^{w_{i,(j)}(\boldsymbol{\vartheta}_0)} F(u; \boldsymbol{\vartheta}_0)^{1-w_{i,(j)}(\boldsymbol{\vartheta}_0)}}{F \left(\max\{u, x_{i,(m)} + \delta/2\}; \boldsymbol{\vartheta}_0\right)}
-\end{align*}\]</span> where the weight <span class="math inline">\(w_{i,j}(\boldsymbol{\vartheta})\)</span> indicates the probability that <span class="math inline">\(X^*_{i,j} &gt; u\)</span> (expected likelihood) <span class="citation" data-cites="Varty:2021">(Section 2.2 of <a href="#/references" role="doc-biblioref" onclick="">Varty et al. 2021</a>)</span>.</p>
+\end{align*}\]</span> where the weight <span class="math inline">\(w_{i,j}(\boldsymbol{\vartheta})\)</span> indicates the probability that <span class="math inline">\(X^*_{i,j} &gt; u\)</span> (expected likelihood) <span class="citation" data-cites="Varty:2021">(cf.&nbsp;Section 2.2 of <a href="#/references" role="doc-biblioref" onclick="">Varty et al. 2021</a>)</span>.</p>
 </section>
 <section id="alternative-hypotheses" class="slide level2">
 <h2>Alternative hypotheses</h2>
@@ -775,6 +775,15 @@ A3
 <li>There is a small size distortion (up to about 5%) for alternative <span class="math inline">\(A_3\)</span> in small samples.</li>
 </ul>
 </section>
+<section id="stationary-setting" class="slide level2">
+<h2>Stationary setting</h2>
+<p>The extremal types theorem extends to stationary time series <span class="citation" data-cites="Leadbetter:1974 Leadbetter.Lindgren.Rootzen:1983 Leadbetter:1983">(<a href="#/references" role="doc-biblioref" onclick="">Leadbetter 1974</a>, <a href="#/references" role="doc-biblioref" onclick="">1983</a>; <a href="#/references" role="doc-biblioref" onclick="">Leadbetter et al. 1983</a>)</span>.</p>
+<p>Under a condition <span class="math inline">\(D(u_n)\)</span> and for extremal index <span class="math inline">\(\theta \in (0,1],\)</span> we get instead <span class="math display">\[\begin{align*}
+\lim_{m \to \infty} G^{\theta m}(c_{m}x+d_{m})&amp;= F(x)
+\end{align*}\]</span> or equivalently <span class="math display">\[\begin{align*}
+\lim_{m \to \infty} G^{m}(c_{\theta m}x+d_{\theta m}) &amp;= F(x).
+\end{align*}\]</span></p>
+</section>
 <section id="stationary-sequences-with-extremal-clustering" class="slide level2">
 <h2>Stationary sequences with extremal clustering</h2>
 <div style="font-size: 85%;">
@@ -784,15 +793,6 @@ X_i &amp;= \max\{X_{i-1}, Z_i\} +\log(1 - \theta), \quad i \geq 1
 \\ Z_i &amp;\sim \mathsf{GEV}\{\log(\theta) - \log(1-\theta),1,0\}
 \end{align*}\]</span> The margins are standard Gumbel, <span class="math inline">\(X_i \sim \mathsf{GEV}(0,1,0),\)</span> while the distribution of <span class="math inline">\(Y = \max\{X_1, \ldots, X_{m}\}\)</span> is Gumbel with location <span class="math inline">\(\log[(m-1)\theta+1].\)</span></p>
 </div>
-</section>
-<section id="stationary-setting" class="slide level2">
-<h2>Stationary setting</h2>
-<p>The extremal types theorem extends to stationary time series <span class="citation" data-cites="Leadbetter:1974 Leadbetter.Lindgren.Rootzen:1983 Leadbetter:1983">(<a href="#/references" role="doc-biblioref" onclick="">Leadbetter 1974</a>, <a href="#/references" role="doc-biblioref" onclick="">1983</a>; <a href="#/references" role="doc-biblioref" onclick="">Leadbetter et al. 1983</a>)</span>.</p>
-<p>Under a condition <span class="math inline">\(D(u_n)\)</span> and for extremal index <span class="math inline">\(\theta \in (0,1],\)</span> we get instead <span class="math display">\[\begin{align*}
-\lim_{m \to \infty} G^{\theta m}(c_{m}x+d_{m})&amp;= F(x)
-\end{align*}\]</span> or equivalently <span class="math display">\[\begin{align*}
-\lim_{m \to \infty} G^{m}(c_{\theta m}x+d_{\theta m}) &amp;= F(x).
-\end{align*}\]</span></p>
 </section>
 <section id="location-parameters-of-stationary-sequences" class="slide level2 smaller">
 <h2>Location parameters of stationary sequences</h2>
@@ -1001,8 +1001,8 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
         <thead>
 <tr>
 <th scope="col" align="center" colspan="1" data-row="-1" data-col="1"> </th>
-<th scope="col" align="center" colspan="3" data-row="-1" data-col="2">\(c=2\)</th>
-<th scope="col" align="center" colspan="2" data-row="-1" data-col="5">\(c=4\)</th>
+<th scope="col" align="center" colspan="3" data-row="-1" data-col="2">\(m=2\)</th>
+<th scope="col" align="center" colspan="2" data-row="-1" data-col="5">\(m=4\)</th>
 <th scope="col" align="center" colspan="1" data-row="-1" data-col="7"> </th>
 </tr>
               <tr>
@@ -1018,7 +1018,7 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
         
         <tbody>
                 <tr>
-                  <td data-row="1" data-col="1">\(m=1\)</td>
+                  <td data-row="1" data-col="1">1</td>
                   <td data-row="1" data-col="2">0</td>
                   <td data-row="1" data-col="3">0</td>
                   <td data-row="1" data-col="4">0</td>
@@ -1027,7 +1027,7 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
                   <td data-row="1" data-col="7">0</td>
                 </tr>
                 <tr>
-                  <td data-row="2" data-col="1">\(m=2\)</td>
+                  <td data-row="2" data-col="1">2</td>
                   <td data-row="2" data-col="2">0.013</td>
                   <td data-row="2" data-col="3">0.045</td>
                   <td data-row="2" data-col="4">0</td>
@@ -1036,7 +1036,7 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
                   <td data-row="2" data-col="7">0</td>
                 </tr>
                 <tr>
-                  <td data-row="3" data-col="1">\(m=4\)</td>
+                  <td data-row="3" data-col="1">4</td>
                   <td data-row="3" data-col="2">0.373</td>
                   <td data-row="3" data-col="3">0.537</td>
                   <td data-row="3" data-col="4">0.16</td>
@@ -1045,7 +1045,7 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
                   <td data-row="3" data-col="7">0.18</td>
                 </tr>
                 <tr>
-                  <td data-row="4" data-col="1">\(m=8\)</td>
+                  <td data-row="4" data-col="1">8</td>
                   <td data-row="4" data-col="2">0.135</td>
                   <td data-row="4" data-col="3">0.316</td>
                   <td data-row="4" data-col="4">0.45</td>
@@ -1082,7 +1082,7 @@ Table&nbsp;2: P-values (rounded to three digits) for the test of max-stability.
 <img data-src="Block_size-presentation_files/figure-revealjs/unnamed-chunk-10-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="inference-for-extremes" class="slide level2">
 <h2>Inference for extremes</h2>
-<p>Use GEV model fitted to blocks of size <span class="math inline">\(4\)</span> days to calculate risk measures for the maximum 50 years wind gust, by using the max-stability relationship with <span class="math inline">\(m=8 \times 50.\)</span></p>
+<p>Use GEV model fitted to blocks of size <span class="math inline">\(4\)</span> days to calculate risk measures for the maximum 50 years wind gust, obtained through max-stability.</p>
 <ul>
 <li>The estimated median of half-century maximum daily wind gust is 86.73 miles per hour</li>
 <li>95% profile-based confidence intervals: (83.06, 105.07) mph.</li>
@@ -1128,7 +1128,7 @@ Figure&nbsp;7: Time series of three-day cumulated rainfall measurements (in mm) 
 <li>Build block of <span class="math inline">\(n/m \times m\)</span> ordered data from maxima.</li>
 <li>Check fit to largest (max of <span class="math inline">\(m\)</span>) and use max-stability to detect departures.</li>
 <li>Simulation studies show the test is powerful even in small samples.</li>
-<li>The test with a single parameter seems more powerful than competitors, with lower values of <span class="math inline">\(m\)</span>.</li>
+<li>The test with alternative <span class="math inline">\(A_1\)</span> seems more powerful than competitors, with lower values of <span class="math inline">\(m\)</span>.</li>
 </ul>
 <p>Diagnostic plots based on bootstrap to account for goodness-of-fit.</p>
 </div>
@@ -1223,9 +1223,6 @@ Leadbetter, M. R. 1983. <span>“Extremes and Local Dependence in Stationary Seq
 <div id="ref-Leadbetter.Lindgren.Rootzen:1983" class="csl-entry" role="listitem">
 Leadbetter, M. R., Georg Lindgren, and Holger Rootzén. 1983. <em>Extremes and Related Properties of Random Sequences and Processes</em>. 1st ed. Springer. <a href="https://doi.org/10.1007/978-1-4612-5449-2">https://doi.org/10.1007/978-1-4612-5449-2</a>.
 </div>
-<div id="ref-vonMises:1936" class="csl-entry" role="listitem">
-Mises, Richard von. 1936. <span>“La Distribution de La Plus Grande de <span class="math inline">\(n\)</span> Valeurs.”</span> <em>Revue Mathématique de l’Union Interbalkanique</em> 1: 141–60.
-</div>
 <div id="ref-Sailynoja.Burkner.Vehtari:2022" class="csl-entry" role="listitem">
 Säilynoja, Teemu, Paul-Christian Bürkner, and Aki Vehtari. 2022. <span>“Graphical Test for Discrete Uniformity and Its Applications in Goodness-of-Fit Evaluation and Multiple Sample Comparison.”</span> <em>Statistics and Computing</em> 32 (2): 32. <a href="https://doi.org/10.1007/s11222-022-10090-6">https://doi.org/10.1007/s11222-022-10090-6</a>.
 </div>
@@ -1240,6 +1237,9 @@ Valadares Tavares, L. 1977. <span>“The Exact Distribution of Extremes of a Non
 </div>
 <div id="ref-Varty:2021" class="csl-entry" role="listitem">
 Varty, Zak, Jonathan A. Tawn, Peter M. Atkinson, and Stijn Bierman. 2021. <em>Inference for Extreme Earthquake Magnitudes Accounting for a Time-Varying Measurement Process</em>. <a href="https://doi.org/10.48550/arXiv.2102.00884">https://doi.org/10.48550/arXiv.2102.00884</a>.
+</div>
+<div id="ref-vonMises:1936" class="csl-entry" role="listitem">
+<span class="nocase">von Mises, Richard</span>. 1936. <span>“La Distribution de La Plus Grande de <span class="math inline">\(n\)</span> Valeurs.”</span> <em>Revue Mathématique de l’Union Interbalkanique</em> 1: 141–60.
 </div>
 <div id="ref-Wang:2016" class="csl-entry" role="listitem">
 Wang, Jixin, Shuang You, Yuqian Wu, Yingshuang Zhang, and Shibo Bin. 2016. <span>“A Method of Selecting the Block Size of <span>BMM</span> for Estimating Extreme Loads in Engineering Vehicles.”</span> <em>Mathematical Problems in Engineering</em> 2016 (1): 6372197. <a href="https://doi.org/10.1155/2016/6372197">https://doi.org/10.1155/2016/6372197</a>.
