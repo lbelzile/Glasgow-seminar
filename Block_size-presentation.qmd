@@ -1,0 +1,1832 @@
+---
+title: "How long should a block be?"
+author: "Léo Belzile, HEC Montréal <br> (joint work with Anthony Davison)"
+subtitle: "Statistics Seminar, University of Glasgow"
+date: "2026-04-22"
+date-format: "dddd, MMM D, YYYY"
+eval: true
+echo: false
+cache: true
+standalone: true
+bibliography: BlockSize.bib
+format:
+  revealjs:
+    slide-number: true
+    html-math-method: mathjax
+    preview-links: auto
+    theme: [simple, hecmontreal.scss]
+    title-slide-attributes:
+      data-background-color: "#002855"
+    logo: "figures/logo_hec_montreal_bleu_web.png"
+    revealjs-plugins:
+       - revealjs-text-resizer
+    filters:
+       - highlight-text
+---
+
+
+```{r include=FALSE}
+
+hecbleu <- c("#002855")
+fcols <- c(gris = "#888b8d",
+           bleu = "#0072ce",
+           aqua = "#00aec7",
+           vert = "#26d07c",
+           rouge = "#ff585d",
+           rose = "#eb6fbd",
+           jaune = "#f3d03e")
+pcols <- c(gris = "#d9d9d6",
+           bleu = "#92c1e9",
+           agua = "#88dbdf",
+           vert = "#8fe2b0",
+           rouge = "#ffb1bb",
+           rose = "#eab8e4",
+           jaune = "#f2f0a1")
+knitr::opts_chunk$set(fig.retina = 3, collapse = TRUE)
+options(digits = 3, width = 75)
+```
+
+
+```{r}
+#| echo: false
+#| eval: true
+#| cache: false
+setwd(this.path::here())
+library(mev) # need version 2.1.00007 or more
+# remotes::install_github("lbelzile/mev")
+library(ggplot2)
+library(patchwork)
+theme_journal <- function(base_size = 12, linewidth = 1) {
+  theme_classic(base_size = base_size) +
+    theme(
+      text = element_text(color = "black", size = base_size),
+      axis.text = element_text(size = base_size * 0.9), # 90% of base
+      axis.line = element_line(linewidth = linewidth),
+      axis.ticks = element_line(linewidth = linewidth),
+      legend.text = element_text(size = base_size * 0.9), # 90% of base
+      legend.key.size = unit(0.5, "lines"),
+      plot.title = element_text(hjust = 0.5, size = base_size),
+      legend.position = "bottom"
+    )
+}
+ggplot2::theme_set(theme_journal())
+# User functions for the paper
+setwd(this.path::here())
+source("results/helpers.R")
+# Load two datasets used in the applications
+data(thames, package = "mev")
+data(cheeseborowind, package = "mev")
+gust <- round(2.236936 * cheeseborowind$gust, 1)
+```
+
+## Block maximum method
+
+Idea promoted for engineering applications by Emil Gumbel [cf. @Gumbel:1958].
+
+- divide a (time) series of length $n$ into $n_m$ equal-length disjoint blocks of $m$ successive observations,
+- fit the generalized extreme value (GEV) distribution to the resulting sample of $n_m$ block maxima,
+- use the fitted model for risk assessment.
+
+**This talk: how long should a block be?**
+
+
+## Motivating example
+
+
+```{r}
+#| out-width: '80%'
+#| fig-width: 10
+#| fig-height: 5
+#| fig-align: 'center'
+#| label: fig-cheeseboro
+#| fig-cap: "Daily maximum wind gust speed in Cheeseboro, California, for January 1st to February 1st of 1996--2026, for a total of $31 \\times 32$ measurements."
+set.seed(1234)
+library(lubridate)
+ts <- gust
+date <- cheeseborowind$date
+time <- year(date) + (yday(date)-1) / 32
+ns <- length(ts)
+b <- 32L
+#ts <- mev::rmar1(n = ns, theta = 0.8, shape = 0.15)
+mblock <- build.blocks(ts, block = b, m = 1)
+ggplot(data = data.frame(x = time, y = ts),
+       mapping = aes(x = x, y = y)) +
+  geom_segment(data = data.frame(x = seq(time[1], to = time[ns-1], by = b / 32), 
+                                 xend = seq(time[b], to = time[ns], by = b / 32),
+                                 y = mblock),
+               mapping = aes(x = x, xend = xend, y = y), 
+               col = MetBrewer::met.brewer("Hiroshige",1), 
+               linewidth = 2,
+               alpha = 0.5) +
+  geom_point() +
+  geom_vline(xintercept = seq(time[b], to = time[ns], by = b / 32), col = "grey") +
+  scale_x_continuous(breaks = seq(1995L, 2025L, by = 5L), expand = expansion()) +
+  scale_y_continuous() +
+  labs(x = "time", y = "", subtitle = "maximum daily wind gust speed (mph)") +
+  theme_classic()
+```
+
+
+## Extremal types theorem
+
+The justification for using the GEV comes from @Fisher.Tippett:1928, @vonMises:1936, @Gnedenko:1943.
+
+If $G$ is a distribution function and there exist location and scaling sequences $d_m$ and $c_m>0$ such that the maximum of $m$ observations has a non-degenerate limiting distribution 
+$$
+\lim_{m \to \infty}G^m(c_mx+d_m) = F(x)
+$$
+then $F(x)$ must be a GEV distribution function.
+
+
+
+## Generalized extreme value distribution
+
+The GEV distribution function is
+\begin{align*}
+F(x; \mu, \sigma, \xi)=\begin{cases}
+\exp\left[-\left\{1+\xi \frac{x-\mu}{\sigma}\right\}_{+}^{-1/\xi}\right], & \xi \neq 0, \\
+\exp\left[-\exp\left\{-\frac{x-\mu}{\sigma}\right\}\right], & \xi =0.
+\end{cases}
+\end{align*}
+with location $\mu\in \mathbb{R},$ scale $\sigma>0$ and shape $\xi\in \mathbb{R}.$ 
+
+The support of $\mathsf{GEV}(\mu, \sigma, \xi)$ is $\{x: \sigma + \xi(x-\mu) > 0\}.$
+
+
+## Regularity conditions and normalizing constants
+
+
+::: {style="font-size: 80%;"}
+
+Suppose that $\lim_{m \to \infty}G^m(c_mx+d_m) = F(x)$ for $F(x) \sim \mathsf{GEV}(0,1,\xi).$
+
+- Assume $G$ is twice differentiable with possibly infinite endpoint $x^{\star},$ with density $g$ and define $\phi(x)=-G(x)\log G(x)/g(x).$
+- for convergence to the GEV distribution, it is sufficient that  $\lim_{x \to x^{\star}} \phi'(x)=\xi^{\star} \in \mathbb{R}$ (so-called von Mises condition).
+- The normalizing constants are obtained from $-\log G(d_m) = m^{-1}$ and $c_m=\phi(d_m)$. The speed of convergence depends on the (unknown) $G.$
+- Penultimate approximation [@Smith:1987] is $\mathsf{GEV}\{d_m, c_m, \phi'(d_m)\}.$
+
+:::
+
+## Quality of approximations
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: fig-density
+#| fig-cap: "Densities of GEV penultimate approximations (dashed blue) versus true distribution $G^{30}$ (full black)."
+#| fig-width: 10
+#| fig-height: 5
+#| out-width: '100%'
+par(mfrow = c(1, 2), mar = c(4, 4, 1, 1), bty = "l")
+m <- 10
+dmax <- function(x, m, family = "norm", args = NULL) {
+  exp(
+    log(m) +
+      (m - 1) *
+        do.call(
+          paste0("p", family),
+          args = c(list(q = x, log.p = TRUE), args)
+        ) +
+      do.call(paste0("d", family), args = c(list(x = x, log = TRUE), args))
+  )
+}
+xseq <- seq(0, 6, length.out = 1001)
+cols <- MetBrewer::met.brewer(name = "Hiroshige", n = 3)
+dnorm_max <- dmax(
+  x = xseq,
+  m = m,
+  family = "norm"
+)
+
+penult_norm <- penultimate(
+  family = "norm",
+  method = "bm",
+  m = m,
+  ddensF = function(x) {
+    -x * dnorm(x)
+  }
+)
+
+xseq <- seq(0, 15, length.out = 1001)
+dweibull_max <- dmax(
+  x = xseq,
+  m = m,
+  family = "weibull",
+  args = list(shape = 0.8)
+)
+
+penult_weibull <- penultimate(
+  family = "weibull",
+  method = "bm",
+  m = m,
+  shape = 0.8
+)
+gnorm <- ggplot() +
+  stat_function(
+    fun = dmax,
+    args = list(family = "norm", m = m),
+    n = 1001,
+    xlim = c(0, 6)
+  ) +
+  stat_function(
+    fun = dgev,
+    args = penult_norm[1:3],
+    col = cols[3],
+    n = 1001,
+    linetype = "dashed"
+  ) +
+  # stat_function(
+  #   fun = dgev,
+  #   args = list(
+  #     loc = penult_norm$loc,
+  #     scale = penult_norm$scale,
+  #     shape = 0
+  #   ),
+  #   col = cols[2],
+  #   n = 1001,
+  #   linetype = "dashed"
+  # ) +
+  scale_x_continuous(
+    limits = c(0, 5.5),
+    expand = expansion()
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion(add = c(0, 0.01))
+  ) +
+  labs(y = "density", caption = "normal") +
+  theme_classic()
+
+gweibull <- ggplot() +
+  stat_function(
+    fun = dmax,
+    args = list(
+      family = "weibull",
+      m = m,
+      args = list(shape = 0.8)
+    ),
+    n = 1001
+  ) +
+  stat_function(
+    fun = dgev,
+    args = penult_weibull[1:3],
+    col = cols[3],
+    n = 1001,
+    linetype = "dashed"
+  ) +
+  # stat_function(
+  #   fun = dgev,
+  #   args = list(
+  #     loc = penult_weibull$loc,
+  #     scale = penult_weibull$scale,
+  #     shape = 0
+  #   ),
+  #   col = cols[2],
+  #   n = 1001,
+  #   linetype = "dashed"
+  # ) +
+  scale_x_continuous(
+    limits = c(0, 16),
+    expand = expansion()
+  ) +
+  scale_y_continuous(
+    limits = c(0, NA),
+    expand = expansion(add = c(0, 0.01))
+  ) +
+  labs(y = "density", caption = "Weibull(0.8)") +
+  theme_classic()
+
+gnorm + gweibull
+```
+
+
+
+## Max-stability
+
+The GEV is characterized by *max-stability*:
+
+if $X_{j} \stackrel{\mathrm{iid}}{\sim} \mathsf{GEV}(\mu, \sigma, \xi)$, then for any $m,$
+\begin{align*}
+Y = \max\{X_{1}, \ldots, X_{m}\}
+\sim \mathsf{GEV}(\mu_m, \sigma_m, \xi),
+\end{align*}
+with 
+\begin{align*}
+\mu_m &=\mu + \sigma (m^\xi-1)/\xi, &\sigma_m &= \sigma m^\xi, &\text{if }\xi &\neq 0,\\ \mu_m &= \mu+\sigma\log m, &
+\sigma_m &=\sigma,&\text{if }\xi &= 0.
+\end{align*}
+
+
+
+## Penultimate approximation vs max-stability
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: fig-penultnorm
+#| fig-cap: "GEV parameters based on max-stable (dashed), and the penultimate approximation (full) for Gaussian (top) and  Weibull (bottom)."
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-height: 5
+m_seq <- seq(from = 30L, to = 30 * 15, by = 15L)
+penult <- penultimate(
+  family = 'norm',
+  ddensF = function(x) {
+    -x * dnorm(x)
+  },
+  m = m_seq,
+  method = "bm",
+  returnList = FALSE
+)
+pars <- as.data.frame(t(sapply(seq_along(m_seq), function(m) {
+  c(
+    maxstable(pars = c(penult$loc[1], penult$scale[1], penult$shape[1]), m = m),
+    m = m_seq[m]
+  )
+})))
+penult_df <- data.frame(rbind(penult, pars))
+penult_df$approximation <- factor(rep(
+  c("penultimate", "max-stability"),
+  each = length(m_seq)
+))
+g1a <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = loc, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "location", subtitle = "Gaussian")
+g2a <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = scale, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "scale")
+g3a <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = shape, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "shape")
+#  Weibull distribution
+penult <- penultimate(
+  family = 'weibull',
+  shape = 0.8,
+  m = m_seq,
+  method = "bm",
+  returnList = FALSE
+)
+pars <- as.data.frame(t(sapply(seq_along(m_seq), function(m) {
+  c(
+    maxstable(pars = c(penult$loc[1], penult$scale[1], penult$shape[1]), m = m),
+    m = m_seq[m]
+  )
+})))
+penult_df <- data.frame(rbind(penult, pars))
+penult_df$approximation <- factor(rep(
+  c("penultimate", "max-stability"),
+  each = length(m_seq)
+))
+g1b <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = loc, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "location", subtitle = "Weibull")
+g2b <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = scale, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "scale")
+g2c <- ggplot(
+  data = penult_df,
+  mapping = aes(x = m, y = shape, linetype = approximation)
+) +
+  geom_line() +
+  labs(x = "block length", y = "shape")
+(g1a + g2a + g3a) / (g1b + g2b + g2c) + plot_layout(guides = "collect") & theme_classic() + theme(legend.position = "bottom")
+```
+
+
+
+## Research question: How to choose the block length?
+
+Traditional extreme value bias-variance trade-off:
+
+- Smaller block lengths may lead to poor GEV approximation (potentially biased extrapolation).
+- Longer blocks lead to smaller sample sizes (more variability).
+
+
+
+## Other considerations
+
+- Data availability (frequency of records).
+- Block maximum is widely viewed as the more robust approach in the applied literature (compared to peaks-over-threshold).
+- Theoretical consideration of asymptotic efficiency relative to peaks-over-threshold [@Bucher.Zhou:2021].
+- Natural (minimum) block length (e.g., annual for seasonally-varying data).
+
+## Literature review
+
+Surprisingly, very little work in the area.
+
+- @Wang:2016 suggest using combinations of goodness-of-fit tests (such as Anderson--Darling or Kolmogorov--Smirnov).
+- unpublished work of @Dkengne:2020 suggests parameter stability plot built using max-stability.
+
+
+## Testing for different block lengths
+
+
+
+::: {style="font-size: 85%;"}
+
+Consider $nm$ block maxima for $n, m \in \mathbb{N}.$  We gather observations into an $n \times m$ matrix of ordered inputs.
+
+
+:::
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: tbl-gust-block
+#| tbl-cap: "Blocks of size $m=4$ from daily maxima wind gusts (in km/h)."
+tinytable::tt(
+  x = as.data.frame(head(build.blocks(gust, block = 1, m = 4), 5)),
+  row.names = NULL,
+  digits = 0, 
+  colnames = FALSE)
+```
+
+::: {style="font-size: 65%;"}
+
+Row $i$ contains the order statistics $X_{i, (1)} \leq \cdots \leq X_{i, (m)}.$
+
+:::
+
+## Joint distribution of order statistics
+
+Let $X_{(1)} \leq \cdots  \le X_{(m)}$ denote order statistics.
+
+Let $F$ and $f$ be the CDF and density of $X_j \stackrel{\mathrm{iid}}{\sim}\mathsf{GEV}(\mu, \sigma, \xi).$ 
+
+The joint density of order statistics is the product of 
+
+- the conditional $X_{(1)}, \ldots, X_{(m-1)} \mid X_{(m)} = x_{(m)},$
+- the marginal $X_{(m)}$.
+
+## Conditional density of lower order statistics
+
+
+The conditional density of $X_{(1)}, \ldots, X_{(m-1)} \mid X_{(m)}$ is
+\begin{align*}
+ f_{{(1, \ldots, m-1)} \mid {(m)}}(\boldsymbol{x}_{-(m)}) 
+&= (m-1)!\prod_{j=1}^{m-1}\frac{f(x_{(j)}; \mu, \sigma, \xi)}{F(x_{(m)}; \mu, \sigma, \xi)}
+\end{align*}
+so the $(m-1)$ smallest observations are, up to permutation, $\mathsf{GEV}(\mu, \sigma, \xi)$ truncated above at $x_{(m)}.$
+
+## Distribution of block maximum
+
+The block maximum $Y=\max(X_1,\ldots, X_m)$ has CDF $F_{(m)}(x)=F^m(x)$ and density
+\begin{align*}
+f_{(m)}(x) &= m F(x; \mu, \sigma, \xi)^{m-1}f(x; \mu, \sigma, \xi) \\
+&= f(x; \mu_m, \sigma_m, \xi),
+\end{align*}
+by max-stability.
+
+
+
+## Likelihood
+
+::: {style="font-size: 90%;"}
+
+In the simplest case, we have
+\begin{align*}
+\mathcal{L}({\boldsymbol{\vartheta}}_0, {\boldsymbol{\vartheta}}_m)=\prod_{i=1}^n f_{{(1, \ldots, m-1)} \mid {(m)}}(\boldsymbol{x}_{i, -(m)};{\boldsymbol{\vartheta}}_0)f_{(m)}(x_{i,(m)}; {\boldsymbol{\vartheta}}_m),
+\end{align*}
+where 
+
+- ${\boldsymbol{\vartheta}}_0 = (\mu, \sigma, \xi)$ are the parameters for $X_{i, (1)} \leq \cdots \le X_{i, (m-1)}.$
+- ${\boldsymbol{\vartheta}}_m$ are the parameters of the largest observation $X_{i, (m)}.$
+
+Under the null hypothesis of max-stability, ${\boldsymbol{\vartheta}}_m=(\mu_m, \sigma_m, \xi) = g(\boldsymbol{\vartheta}_0),$ say.
+:::
+
+## Rounding and left-censoring {.smaller}
+
+Environmental measurements are frequently rounded to the nearest $\delta$ unit. We may also want to left-censor observations below $u.$
+
+Consider latent $X^*_i \sim \mathsf{GEV}(\mu, \sigma, \xi)$, where $X_{i,j} - \delta/2 \le X_i^* \le X_{i,j}+ \delta/2$; the individual observation contribution to the likelihood when $x_{i,(j)} > u$ are
+\begin{align*}
+L_{i,j}(\boldsymbol{\vartheta}) = \begin{cases}
+f(x_{i,(j)}; \boldsymbol{\vartheta}), & \delta=0; \\
+F(x_{i,(j)}+\delta/2; \boldsymbol{\vartheta})- F(\max\{x_{i,(j)}-\delta/2, u\}; \boldsymbol{\vartheta}), & \delta > 0.
+\end{cases}
+\end{align*}
+The joint likelihood contributions for the $(m-1)$ lowest order statistics of $m$ are from the GEV distribution right-truncated at $x_{(m)} + \delta/2$.
+
+## Joint likelihood with censoring {.smaller}
+
+The likelihood contribution from a single vector $x_{i,(1)}, \ldots, x_{i,(m)}$ is
+\begin{align*}
+L_i(\boldsymbol{\vartheta}_0, \boldsymbol{\vartheta}_m)& = L_{i,m}(\boldsymbol{\vartheta}_m)^{w_{i,(m)}(\boldsymbol{\vartheta}_m)} F(u; \boldsymbol{\vartheta}_m)^{1-w_{i,(m)}(\boldsymbol{\vartheta}_m)} \\& \times \prod_{j=1}^{m-1} \frac{L_{i,j}(\boldsymbol{\vartheta}_0)^{w_{i,(j)}(\boldsymbol{\vartheta}_0)} F(u; \boldsymbol{\vartheta}_0)^{1-w_{i,(j)}(\boldsymbol{\vartheta}_0)}}{F \left(\max\{u, x_{i,(m)} + \delta/2\}; \boldsymbol{\vartheta}_0\right)}
+\end{align*}
+where the weight $w_{i,j}(\boldsymbol{\vartheta})$ indicates the probability that  $X^*_{i,j} > u$ (expected likelihood) [Section 2.2 of @Varty:2021]. 
+
+
+## Alternative hypotheses
+
+The idea underlying our testing procedure is to let the parameters of the block maximum differ, by
+
+
+::: {style="font-size: 80%;"}
+
+- $A_1$: setting $\mathcal{H}_a: {\boldsymbol{\vartheta}}_m = (\mu_{\omega m}, \sigma_{\omega m}, \xi)$ for some scaling $\omega > 0$, and testing $\mathcal{H}_0: \omega=1.$
+- $A_2$:  allowing both location and scale to vary $\mathcal{H}_a: {\boldsymbol{\vartheta}}_m = (\mu_m+\nu, \phi \sigma_m, \xi)$ and testing $\mathcal{H}_0: \nu=0, \phi=1.$
+- $A_3$: letting all three parameters vary $\mathcal{H}_a: {\boldsymbol{\vartheta}}_m = (\mu_m+\nu, \phi \sigma_m, \xi + \zeta)$ and testing $\mathcal{H}_0:\nu=0, \phi=1, \zeta=0.$
+
+
+
+We use likelihood ratio statistics to compare the models $\mathcal{H}_0$ and $\mathcal{H}_a.$ The asymptotic distribution of the test is $\chi^2_k$ with $k\in\{1, 2, 3\}.$
+
+:::
+
+
+## Setup of power study
+
+We consider different scenarios to assess the power of tests:
+
+- different parametric distributions for alternatives,
+- sample sizes $n \in \{25,50,100\},$
+- number of order statistics $m\in \{2, 5, 10\},$
+- three alternatives $\mathcal{H}_a.$
+
+All power curves are based on 2000 replications, with tests conducted at level 5%.
+
+## Alternative distributions
+
+We consider maxima of 
+
+(a) $\mathsf{normal}(0,1)$ and 
+(b) $\mathsf{Weibull}(1, 0.8).$
+
+with distribution $G$ and block of size $30,$ simulate
+
+- $X_{(1)}, \ldots, X_{(m-1)}$ from $G^{30},$
+- $X_{(m)}$ from $G^{30\delta},$ but left-truncated at $x_{(m-1)}$.
+
+
+## Power curves
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-align: 'center'
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-height: 7
+setwd(this.path::here())
+load("results/power-study-1_2-power.RData")
+g_gev2 <- ggplot(
+  data = power |>
+    dplyr::filter_out(m == 2 & delta > 7) |>
+    dplyr::filter_out(m == 5 & delta > 14),
+  mapping = aes(
+    x = delta,
+    y = 100 * power,
+    col = alt,
+    linetype = nobs
+  )
+) +
+  geom_hline(linetype = "dashed", alpha = 0.5, yintercept = 5) +
+  geom_line() +
+  facet_wrap(
+    facets = vars(m),
+    labeller = label_both,
+    scales = "free_x"
+  ) +
+  labs(
+    x = expression(delta),
+    linetype = "n",
+    y = "power (%)",
+    col = "alternative",
+    subtitle = "Generalized approximation to Weibull(0.8)"
+  ) +
+  MetBrewer::scale_color_met_d(name = "Hiroshige") +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+
+load("results/power-study-1_3-power.RData")
+g_gev3 <- ggplot(
+  data = power |>
+    dplyr::filter_out(m == 2 & delta > 7) |>
+    dplyr::filter_out(m == 5 & delta > 14),
+  mapping = aes(
+    x = delta,
+    y = 100 * power,
+    col = alt,
+    linetype = nobs
+  )
+) +
+  geom_hline(linetype = "dashed", alpha = 0.5, yintercept = 5) +
+  geom_line() +
+  facet_wrap(
+    facets = vars(m),
+    labeller = label_both,
+    scales = "free_x"
+  ) +
+  labs(
+    x = expression(delta),
+    linetype = "n",
+    y = "power (%)",
+    col = "alternative",
+    subtitle = "Generalized approximation to normal"
+  ) +
+  MetBrewer::scale_color_met_d(name = "Hiroshige") +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+
+  g_gev2 /   g_gev3 +
+  plot_layout(guides = "collect") &
+  theme(legend.position = 'bottom')
+```
+
+## Size of tests {.smaller}
+
+```{r}
+#| echo: false
+#| eval: true
+#| results: 'asis'
+load("results/sizeGEV.RData") 
+dimnames(size_ar)[[1]] <- c("A1","A2","A3")
+f <- ftable(
+         x = size_ar,
+         col.vars = c("m", "n"),
+         row.vars = c("distribution", "alt")
+     )
+stargazer::stargazer(format(f, quote=FALSE, justify="right"), type="html")
+
+```
+
+## Summary
+
+- As expected, power increases with the sample size $n$.
+- Perhaps surprisingly, the test has more power when $m$ is small! Possibly due to alternative.
+- Alternative 1 is often the most powerful (less degrees of freedom), despite misspecification.
+- There is a small size distortion (up to about 5%) for alternative $A_3$ in small samples.
+
+
+
+## Stationary sequences with extremal clustering
+
+
+::: {style="font-size: 85%;"}
+
+
+To investigate serial dependence, we also consider data from first-order max-autoregressive (MAR) processes parametrized in terms of the extremal index $\theta.$
+
+Consider the stochastic process obtained through the recursion [@Tavares:1977]
+\begin{align*}
+X_i &= \max\{X_{i-1}, Z_i\} +\log(1 - \theta), \quad i \geq 1
+\\ Z_i &\sim \mathsf{GEV}\{\log(\theta) - \log(1-\theta),1,0\} 
+\end{align*}
+The margins are standard Gumbel, $X_i \sim \mathsf{GEV}(0,1,0),$ while the distribution of $Y = \max\{X_1, \ldots, X_{m}\}$ is Gumbel with location $\log[(m-1)\theta+1].$ 
+
+:::
+
+
+
+## Stationary setting
+
+The extremal types theorem extends to stationary time series [@Leadbetter:1974;@Leadbetter.Lindgren.Rootzen:1983;@Leadbetter:1983].
+
+Under a  condition $D(u_n)$ and for extremal index $\theta \in (0,1],$ we get instead
+\begin{align*}
+\lim_{m \to \infty} G^{\theta m}(c_{m}x+d_{m})&= F(x)
+\end{align*}
+or equivalently
+\begin{align*}
+\lim_{m \to \infty} G^{m}(c_{\theta m}x+d_{\theta m}) &= F(x).
+\end{align*}
+
+
+
+## Location parameters of stationary sequences {.smaller}
+
+
+Max-stability holds asymptotically, but with $m\theta$ rather than $m$.
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: fig-tavares77
+#| fig-cap: "MAR with $\\xi=0$ and $\\theta=0.5$: time series of simulated values (left) and location parameters of the Gumbel maxima based on extrapolating to blocks of size $m$, taking $\\log(m)$ (iid) and $\\log(m\\theta)$ (stationary) as location parameters."
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-height: 5
+#| fig-align: 'center'
+set.seed(202603)
+theta <- 0.5
+m <- seq(1, 20, length.out = 101)
+# Simulate from Tavares first-order max-autoregressive process
+# with unconditional standard Gumbel margins
+y <- rmar1(n = 200, theta = theta, shape = 0)
+gg1_tav <- ggplot(
+  data = data.frame(y = y, x = seq_along(y)),
+  mapping = aes(y = y, x = x)
+) +
+  geom_point() +
+  geom_line() +
+  labs(x = "time", y = "") +
+  theme_classic()
+
+
+# Plot the extrapolation of the location
+# based on max-stability, exact and accounting for extremal index
+gg2_tav <- ggplot(
+  data = data.frame(
+    location = c(
+      log1p((m - 1) * theta),
+      log(m),
+      log(m * 0.5)
+    ),
+    m = rep(m, length.out = 3 * length(m)),
+    estimator = rep(
+      x = c("true", "iid", "stationary"),
+      each = length(m)
+    )
+  ),
+  mapping = aes(
+    x = m,
+    y = location,
+    col = estimator
+  )
+) +
+  geom_line() +
+  MetBrewer::scale_color_met_d(name = "Hiroshige") +
+  theme_classic()
+gg1_tav + gg2_tav
+```
+
+<!--
+
+## Max-autoregressive process with positive shape
+
+
+::: {style="font-size: 80%;"}
+
+
+For $\xi>0$, the first-order max-autoregressive model is
+\begin{align*}
+X_i &= \max\{(1-\theta)^\xi X_{i-1}, Z_i\}, \qquad i \geq 1 \\
+Z_i &\sim \mathsf{GEV}(\theta^{\xi}, \xi\theta^{\xi}, \xi)
+\end{align*} 
+The marginal stationary distribution is Fréchet with shape $\xi^{-1}$, i.e., a $\mathsf{GEV}(1, \xi, \xi).$ 
+
+
+The distribution of $Y= \max\{X_1, \ldots, X_{m}\}$ has CDF $\exp[-\{\theta(m-1)+1\}x^{-1/\xi}];$ see Example 10.3 of @Beirlant:2004.
+
+:::
+
+-->
+
+## Power curves - max autoregressive {.smaller}
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-align: 'center'
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-height: 6
+load("results/power_mar.RData")
+ggplot(
+  data = res_st_df |> dplyr::filter(shape == 0),
+  mapping = aes(
+    x = theta,
+    y = 100 * power,
+    col = alternative,
+    linetype = nobs
+  )
+) +
+  geom_hline(linetype = "dashed", alpha = 0.5, yintercept = 5) +
+  geom_line() +
+  facet_wrap(
+    facets = vars(m),
+    labeller = label_both,
+    scales = "free_x"
+  ) +
+  labs(
+    x = expression(theta),
+    linetype = "n",
+    y = "power (%)",
+    subtitle = "Max first-order autoregressive process"
+  ) +
+  scale_x_continuous(transform = "reverse") +
+  MetBrewer::scale_color_met_d(name = "Hiroshige") +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+```
+
+## Power study - max-autoregressive
+
+```{r}
+#| eval: true
+#| echo: false
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-height: 5
+#| fig-align: 'center'
+load("results/power_st_block.RData")
+ ggplot(
+  data = res_st2_df |> dplyr::filter(shape == 0),
+  mapping = aes(
+    x = theta,
+    y = 100 * power,
+    col = alternative,
+    linetype = nobs
+  )
+) +
+  geom_hline(linetype = "dashed", alpha = 0.5, yintercept = 5) +
+  geom_line() +
+  facet_wrap(
+    facets = vars(block),
+    labeller = label_both,
+    scales = "free_x"
+  ) +
+  labs(
+    x = expression(theta),
+    linetype = "n",
+    y = "power (%)",
+    subtitle = "Max first-order autoregressive process"
+  ) +
+  scale_x_continuous(transform = "reverse") +
+  scale_y_continuous(limits = c(0, NA), expand = expansion()) +
+  MetBrewer::scale_color_met_d(name = "Hiroshige") +
+  theme_minimal() +
+  theme(legend.position = 'bottom')
+```
+
+## Comments on power curves
+
+- More discrepancies are expected for smaller values of $\theta,$ as the average cluster size is $1/\theta,$ the reciprocal of the extremal index. 
+- As the block length increases, the effect of $\theta$ is captured through parameter estimates and we fail to reject for larger $\theta,$ as expected. 
+- Alternative 3 suffers again from size distortion, especially in small samples (either when $m$ or $n$ is small).
+
+
+
+## Diagnostic plots
+
+We propose quantile-quantile plots to assess the goodness-of-fit of the model.
+
+Among quantities of interest
+
+- all maxima,
+- the block maximum $X_{(m)}$.
+
+We use a parametric bootstrap scheme for uncertainty quantification.
+
+## Confidence intervals for probability-probability plots
+
+@Sailynoja.Burkner.Vehtari:2022 outlines a method for building simultaneous confidence intervals for tests of uniformity in probability-probability plots, evaluated at $N$ fixed plotting positions $\nu_1, \ldots, \nu_N \in (0,1)$. 
+
+We propose a modification that accounts for estimation uncertainty and potentially unequal samples sizes due to rounding.
+
+
+## Building confidence intervals 
+
+- Consider the empirical distribution function (ECDF) $\mathsf{ECDF}(\nu; \boldsymbol{V}) = n^{-1} \sum_{i=1}^n \mathsf{1}_{\nu \leq V_i}.$
+- If $V_i$ are independent uniforms, then $n\mathsf{ECDF}(\nu; \boldsymbol{V})$ is binomial with $n$ trials and probability of success $\nu,$ whose distribution we denote $H(\cdot; n, \nu).$
+- We can obtain a pointwise confidence interval at any value $\nu$ from the quantile function of the binomial.
+
+## Simultaneous intervals {.smaller}
+
+To obtain simultaneous confidence interval for points $\nu_1, \ldots, \nu_N,$ @Sailynoja.Burkner.Vehtari:2022 consider simulation of $B$ uniform samples of size $n$.
+
+For the $b$th bootstrap, generate $\boldsymbol{v}_b \in [0,1]^n$ uniform and find the minimum level $\alpha_b$ such that the entire scaled ECDF lies inside the interval, where for $i=1, \ldots, N$ and $b = 1, \ldots, B$
+\begin{align*}
+t_{l,i} &=H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b); n, \nu_i\right] \\
+t_{u,i} &= 1 - H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b)-1; n, \nu_i\right]\\
+\alpha_b &= 2 \min_{i=1}^N  \min \{ t_{l,i}, t_{u,i}\}.
+\end{align*}
+
+For simultaneous intervals, use level $\alpha^*,$ the $\alpha$ quantile of $\alpha_1, \ldots, \alpha_B.$ 
+
+
+
+## Parametric bootstrap {.smaller}
+
+A conventional parametric bootstrap to test properties of the statistic $S(\boldsymbol{\vartheta})$ based on the MLE $\widehat{\boldsymbol{\vartheta}}$ would 
+
+- simulate GEV via the quantile function, $X^*_{j} \sim \mathsf{GEV}(\widehat{\mu}, \widehat{\sigma}, \widehat{\xi}).$
+- obtain bootstrap maximum likelihood estimates $\widehat{\boldsymbol{\vartheta}}^{*}$ from $\boldsymbol{X}^*.$
+- Transform observations to uniform via the distribution function $F(X_{j}; \widehat{\boldsymbol{\vartheta}}^{*})$ or $F[X_{(m)}; g(\widehat{\boldsymbol{\vartheta}}^*)].$
+- compute the ECDF of the resulting uniform sample and evaluate it at  $\nu_1=1/N, \ldots, \nu_{N-1} = (N-1)/N$
+- obtain $\alpha_b$ from the formula on the previous slide.
+
+The procedure is repeated $B$ times and we obtain the overall level $\alpha^* < \alpha$ for simultaneous confidence intervals.
+
+
+## Complications from rounding and censoring
+
+For rounded and left-censored data, we modify the bootstrap scheme as follows:
+
+- The $n$ bootstrap draws are rounded to the nearest $\delta$.
+- The MLE is computed using likelihood with left-censoring and interval-censoring.
+- We impute the latent variables $X^*$ for the rounded values, and retain only those above $u$, leading to samples of size $n_b \leq n.$
+
+
+## Marginal likelihood
+
+Since interest lies in extrapolation, we can also consider estimation of GEV parameters based on the marginal distribution of $X_{(1)}, \ldots, X_{(m-1)}$, where
+\begin{align*}
+\mathcal{L}_{\text{marg}}(\boldsymbol{\theta}) &= \prod_{i=1}^n f_{(1),\ldots, (m-1)}(\boldsymbol{x}_i; \boldsymbol{\theta})\\&\propto \prod_{i=1}^n\{1-F(x_{i,(m-1)})\}\prod_{j=1}^{m-1} f(x_{i,(j)};\boldsymbol{\theta})
+\end{align*}
+which amounts to right-censoring the largest observation.
+
+
+## (Dis)advantages of the marginal likelihood {.smaller}
+
+
+- Avoids using the maximum $X_{(m)}$ both for model estimation and goodness-of-fit: no double dipping. 
+- Must also include the inequality constraint $\sigma_0+\xi_0 (\max_{i} x_{i,(m)}-\mu_0) > 0$ on the optimization.
+
+
+::: {.column width="50%"}
+
+- Discarding the largest observation leads to a loss of information: with $m=4$, we calculate the efficiency for $\boldsymbol{\vartheta}=(\mu=0, \sigma=1, \xi),$$$r(\boldsymbol{\vartheta})=\frac{ |\imath_{\text{marg}}(\boldsymbol{\vartheta})|^{1/3}}{|\imath_{\text{full}}(\boldsymbol{\vartheta})|^{1/3}},$$ where $\imath$ is the Fisher information.
+:::
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| eval: true
+#| echo: false
+#| out-width: '90%'
+#| fig-width: 6
+#| fig-height: 5
+#| fig-align: 'right'
+load("results/efficiency.RData")
+ggplot(
+  data = eff_df,
+  mapping = aes(x = shape, col = m, linetype = m, y = efficiency)
+) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, by = 0.25),
+    expand = expansion(),
+    labels = c("0", "0.25", "0.5", "0.75", "1")
+  ) +
+  scale_color_grey() +
+  #MetBrewer::scale_color_met_d("Hiroshige") +
+  theme_classic() +
+  theme(legend.position = "inside", legend.position.inside = c(0.9, 0.2))
+```
+
+
+:::
+::::
+
+
+## Marginal likelihood
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: fig-efficiency
+#| fig-cap: "Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape $\\xi$ for $m \\in \\{2, 10\\}$ and $n \\in \\{25,100\\}$ for different estimators, based on 1000 Monte Carlo samples (right)."
+#| out-width: '100%'
+#| fig-width: 10
+#| fig-align: 'center'
+#| fig-height: 5
+#| warning: false
+#| message: false
+# load("results/efficiency.RData")
+load("results/marginal_lik_test.RData")
+# ggeff <- ggplot(
+#   data = eff_df,
+#   mapping = aes(x = shape, col = m, linetype = m, y = efficiency)
+# ) +
+#   geom_point() +
+#   geom_line() +
+#   scale_y_continuous(
+#     limits = c(0, 1),
+#     breaks = seq(0, 1, by = 0.25),
+#     expand = expansion(),
+#     labels = c("0", "0.25", "0.5", "0.75", "1")
+#   ) +
+#   scale_color_grey() +
+#   #MetBrewer::scale_color_met_d("Hiroshige") +
+#   theme_classic() +
+#   theme(legend.position = "inside", legend.position.inside = c(0.9, 0.2))
+
+coef_df <- array2DF(coefs, responseName = "coef") |>
+  dplyr::mutate(
+    n = factor(as.integer(n)),
+    shape = as.numeric(shape),
+    m = factor(as.integer(m)),
+    par = factor(par),
+    type = factor(type, labels = c("full", "marginal", "marginal + constraint"))
+  )
+# save(coef_df, file = "../results/marglik_df.RData")
+ggran <- ggplot(
+  data = coef_df |>
+    dplyr::filter(
+      par == "shape",
+      shape %in% c(-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3),
+      n %in% c("25", "100"),
+      m %in% c("2", "10")
+    ),
+  mapping = aes(
+    x = factor(shape),
+    y = coef - shape,
+    col = type,
+    fill = type,
+    group = type
+  )
+) +
+  ggdist::stat_pointinterval(.width = c(0.5, 0.9), position = position_dodge()) +
+  facet_wrap(
+    vars(n, m),
+    labeller = labeller(
+      n = ~ paste0("n=", .),
+      m = ~ paste0("m=", .),
+      .multi_line = FALSE
+    ),
+    scales = "free_y"
+  ) +
+  labs(x = "shape", y = "bias") +
+  MetBrewer::scale_color_met_d("Hiroshige") +
+  MetBrewer::scale_fill_met_d("Hiroshige") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+ggran #+ plot_layout(widths = c(1, 1.5))
+```
+
+# Data applications
+
+## Cheeseboro wind gusts
+
+
+We use daily data from the [Western Regional Climate Center](https://raws.dri.edu/cgi-bin/rawMAIN.pl?caCCHB) for the  [Cheeseboro](https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USR0000CCHB/detail) weather station. 
+
+The data consist of daily maximum gust wind speed (in meters per second) for 1 January to 1 February inclusive between 1996 and 2026, a total of 961 records.
+
+We test for different block sizes $m \in \{1, 2, 4, 8, 16, 32\}$ days.
+
+
+## Diagnostic plots
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: fig-gumbelplot
+#| fig-cap: "Gumbel plot of $m$-day maxima against standard Gumbel plotting positions $-\\log[-\\log\\{i/(n_m+1)\\}]$ for the Cheeseboro wind gust data."
+#| out-width: '70%'
+#| fig-align: 'center'
+
+n_ch <- length(gust)
+
+df <- rbind(
+  data.frame(x = -log(-log(ppoints(n_ch))), y = sort(gust), block = 1),
+  data.frame(
+      x = -log(-log(ppoints(n_ch/2))), 
+      y = sort(build.blocks(gust, block = 2, m = 1)),
+      block = 2),
+  data.frame(
+      x = -log(-log(ppoints(n_ch/4))), 
+      y = sort(build.blocks(gust, block = 4, m = 1)),
+      block = 4),
+  data.frame(
+      x = -log(-log(ppoints(n_ch/8))), 
+      y = sort(build.blocks(gust, block = 8, m = 1)),
+      block = 8),
+  data.frame(
+      x = -log(-log(ppoints(n_ch/16))), 
+      y = sort(build.blocks(gust, block = 16, m = 1)),
+      block = 16),
+  data.frame(
+      x = -log(-log(ppoints(n_ch/32))), 
+      y = sort(build.blocks(gust, block = 32, m = 1)),
+      block = 32))
+df$block <- as.factor(df$block)
+
+ggplot() +
+  geom_point(
+    data = df,
+    mapping = aes(x = x, y = y, col = block, shape = block)
+  ) +
+  MetBrewer::scale_color_met_d("Hiroshige") + 
+  labs(x = "theoretical Gumbel positions",
+       subtitle = "daily maximum gust speed (km/h)",
+       y = "",
+       colour = "block length",
+       shape = "block length") +
+  theme_classic() + 
+  theme(legend.position = "inside", legend.position.inside = c(0.9,0.3))
+
+
+```
+
+
+::: {style="font-size: 65%;"}
+Plot *à la* @Cox.Isham.Northrop:2002. With Gumbel fit, lines should be parallel.
+
+:::
+
+
+## P-values for test for wind gusts at Cheeseboro
+
+```{r}
+#| eval: true
+#| echo: false
+#| cache: true
+yearly_max <- xts::apply.yearly(
+    xts::xts(gust, order.by = cheeseborowind$date),
+    max
+  )
+
+pvals_chd <- array(
+  dim = c(4,3,2), 
+  dimnames = list(block = c("1","2","4","8"),
+                  alternative = c("A1","A2","A3"),
+                  m = c("2","4")))
+pvals_chd[,,1] <-
+  rbind(
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 1, m = 2)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 2, m = 2)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 4, m = 2)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 8, m = 2)
+    )$pval
+  )
+pvals_chd[,,2] <- rbind(
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 1, m = 4)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 2, m = 4)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 4, m = 4)
+    )$pval,
+    test.blocksize(
+      rounding = 1,
+      xdat = build.blocks(gust, block = 8, m = 4)
+    )$pval
+  )
+
+df_pvals_dch <- array2DF(pvals_chd, responseName = "pvalue") |>
+  dplyr::mutate(block = factor(block),
+                alternative = factor(alternative),
+                m = factor(m))
+
+```
+
+
+
+```{r}
+#| cache: false
+#| eval: true
+#| echo: false
+#| label: tbl-pvals-cheeseboro
+#| tbl-cap: "P-values (rounded to three digits) for the test of max-stability."
+
+library(tinytable)
+dfc_tab <- data.frame(
+  block = c("\\(m=1\\)", "\\(m=2\\)", "\\(m=4\\)", "\\(m=8\\)"),
+  round(cbind(pvals_chd[,, 1], pvals_chd[,, 2]), 3)
+)
+# dfc_tab
+tt_dfc <- tt(dfc_tab)
+names(tt_dfc) <- c("block", "\\(A_1\\)", "\\(A_2\\)", "\\(A_3\\)", "\\(A_1\\)", "\\(A_2\\)", "\\(A_3\\)")
+tt_dfc |>
+  format_tt(j = 2:7, digits = 2) |>
+  format_tt(escape = FALSE) |>
+  group_tt(
+    j = list(
+      "\\(c=2\\)" = 2:4,
+      "\\(c=4\\)" = 5:6
+    )
+  )
+```
+
+
+## Probability-probability plots of maxima
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: '100%'
+#| fig-align: 'center'
+# load("results/qqplots.RData")
+gust2 <- build.blocks(gust, block = 2, m = 4)
+gust4 <- build.blocks(gust, block = 4, m = 4)
+
+set.seed(202504)
+qq2 <- qqplot.blocksize(
+  xdat = gust2,
+  type = c("max", "all"),
+  marginal = TRUE,
+  rounding = 1,
+  B = 200,
+  plot = FALSE,
+  np = 125
+)
+
+
+set.seed(202604) 
+qq4 <- qqplot.blocksize(
+  xdat = gust4,
+  type = c("max", "all"),
+  marginal = TRUE,
+  rounding = 1,
+  B = 200,
+  plot = FALSE,
+  np = 125
+) 
+autoplot(qq2, type = "max") + 
+  labs(caption ="m=2") +
+  autoplot(qq4, type = "max")+ 
+  labs(caption ="m=4")
+
+```
+
+
+
+<!-- Section 2.2 of @Sailynoja.Burkner.Vehtari:2022 outlines a method for building simultaneous confidence intervals for tests of uniformity in probability-probability plots, evaluated at $N$ fixed plotting positions $\nu_1, \ldots, \nu_N \in (0,1)$. They consider the values of the empirical distribution function (ECDF) $\mathsf{ECDF}(\nu; \boldsymbol{v}) = n^{-1} \sum_{i=1}^n \mathsf{1}_{\nu \leq v_i}$ for $\boldsymbol{v} \in [0,1]^n$ and $\nu \in (0,1)$. It is easy to see that, with a uniform sample, $n\mathsf{ECDF}(\nu; \boldsymbol{v})$ is binomial with $n$ trials and probability of success $\nu$, whose distribution function we denote $H(\cdot; \nu, n)$: we can obtain a pointwise confidence interval at any value $\nu$ from the quantile function of the binomial and scale the latter by $n$. -->
+
+<!-- To obtain simultaneous confidence interval, @Sailynoja.Burkner.Vehtari:2022 consider simulation of $B$ uniform samples of size $n$, say $\boldsymbol{v}_b \in [0,1]^n (b=1, \ldots, B)$ and finding for the $b$th bootstrap the minimum level $\alpha_b$ such that the entire scaled ECDF lies inside the interval, where -->
+<!-- $$ -->
+<!-- \alpha_b = 2 \min_{i=1}^n \left\{ \min\left\{H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b); n, \nu_i\right], 1 - H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b)-1; n, \nu_i\right]\right\}\right\}. -->
+<!-- $$ {#eq-alpha-boot} -->
+<!-- To obtain simultaneous intervals with level of significance $\alpha$, they instead draw intervals with level $\alpha^*$ being the $\alpha$ quantile of $\alpha_1, \ldots, \alpha_B.$ The pointwise and simultaneous confidence intervals can be calculated for the original sample at $\boldsymbol{\nu}$ through $[H^{-1}(\alpha/2; \nu_i,n), H^{-1}(1-\alpha/2; \nu_i,n)]$ and $[H^{-1}(\alpha^*/2; \nu_i,n), H^{-1}(1-\alpha^*/2; \nu_i,n)].$ The method described above, however, does not account for the estimation uncertainty and potentially different sample sizes from bootstrap replications. We therefore propose a modification hereafter.  -->
+
+
+## Risk extrapolation
+
+
+::: {style="font-size: 65%;"}
+
+The block length can have a sizeable impact on risk estimation (sample maximum is 92 mph $\sim$ 148km/h). Shape of $\widehat{\xi}=0.18$ for $m=1,$ versus $\xi=-0.09$ for $m=4.$
+
+:::
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-align: 'center'
+
+fit1 <- maxstable(
+  fit.gevblock(build.blocks(gust), rounding = 1),
+  m = 32 * 50
+)
+fit2 <- maxstable(
+  fit.gevblock(build.blocks(gust, block = 2), rounding = 1),
+  m = 16 * 50
+)
+fit4 <- maxstable(
+  fit.gevblock(build.blocks(gust, block = 4), rounding = 1),
+  m = 8 * 50
+)
+fit8 <- maxstable(
+  fit.gevblock(build.blocks(gust, block = 8), rounding = 1),
+  m = 4 * 50
+)
+fit16 <- maxstable(
+  fit.gevblock(build.blocks(gust, block = 16), rounding = 1),
+  m = 2 * 50
+)
+
+cols <- MetBrewer::met.brewer(name = "Hiroshige", n = 5)
+gg50dens <- ggplot() + 
+  stat_function(fun = function(x){
+    mev::dgev(x, loc = fit1[1], scale = fit1[2], shape = fit1[3])},
+                aes(col = "1"), linewidth = 1.5, n = 1001) +
+  stat_function(fun = function(x){
+    mev::dgev(x, loc = fit2[1], scale = fit2[2], shape = fit2[3])},
+                aes(col = "2"), linewidth = 1.5, n = 1001) +
+  stat_function(fun = function(x){
+      mev::dgev(x, loc = fit4[1], scale = fit4[2], shape = fit4[3])},
+                aes(col = "4"), linewidth = 1.5, n = 1001) +
+  stat_function(fun = function(x){
+    mev::dgev(x, loc = fit8[1], scale = fit8[2], shape = fit8[3])},
+                aes(col = "8"), linewidth = 1.5, n = 1001) +
+  stat_function(fun = function(x){
+    mev::dgev(x, loc = fit16[1], scale = fit16[2], shape = fit16[3])},
+                aes(col = "16"), linewidth = 1.5, n = 1001) +
+  scale_y_continuous(limits = c(0, 0.2), expand = expansion()) +
+  scale_x_continuous(limits = c(100, 370) * 0.6, expand = expansion()) +
+  scale_color_manual(name = 'block length (days)',
+                      breaks=paste0(c(1L,2L,4L,8L,16L)),
+                     labels = paste0(c(1L,2L,4L,8L,16L)),
+                     values = cols
+                      ) +
+  labs(y = "",
+       subtitle = "density of 50 year maximum", 
+       x = "wind gust speed (mph)") +
+  theme_classic() +
+  theme(legend.position = "inside", legend.position.inside = c(0.9,0.8))
+gg50dens
+
+```
+
+
+
+
+## Inference for extremes
+
+
+Use GEV model fitted to blocks of size $4$ days to calculate risk measures for the maximum 50 years wind gust, by using the max-stability relationship with $m=8 \times 50.$ 
+
+- The estimated median of half-century maximum daily wind gust is 86.73 miles per hour
+- 95% profile-based confidence intervals: (83.06, 105.07) mph.
+- Negligible serial correlation.
+
+## Application 2: landslide-triggering rainfall episodes
+
+::: {style="font-size: 85%;"}
+
+We look at data from the Abisko scientific research station, located in Lapland (Sweden).
+
+- The daily data run from January 1913 until December 2014.
+- The region around the station is prone to landslides, which are caused by prolonged heavy rainfall episodes. 
+- @Guzzetti:2007 identify intensity-duration combinations that are likely to lead to landslides, for three day rainfall, rainfall episodes beyond 69.9mm; 
+
+We compute 3 day running sums and consider rainfall with 12 periods of 7 days from June 15th  every year to ensure approximate stationarity.
+
+:::
+
+## Tests for block-length
+
+```{r}
+#| eval: true
+#| echo: false
+#| warning: false
+#| message: false
+library(lubridate, quietly = TRUE,warn.conflicts = FALSE)
+library(xts)
+
+data(abisko, package = "mev")
+# Fill in series to replace missing days with zeros
+alldays <- seq.Date(abisko$date[1], to = tail(abisko$date, 1), by = 1)
+zeros <- xts(x = rep(0, length(alldays)), order.by = alldays)
+ts <- xts(x = abisko$precip, order.by = abisko$date) #[ind]
+cumul <- apply.daily(rbind(ts, zeros), sum)
+names(cumul) <- "rain3day"
+# Use rolling function to compute 3 day sum
+abisko3 <- round(zoo::rollsum(cumul, 3), 3)
+days_seq <- seq(
+  from = yday(ymd("2026-06-15")),
+  by = 1,
+  length.out = 7 * 3 * 4
+)
+xdat <- abisko3[yday(abisko3) %in% days_seq]
+
+df_abisko3 <- data.frame(
+  time = year(xdat) + (yday(xdat) -days_seq[1]) / diff(range(days_seq)),
+  rain = as.numeric(xdat)
+)
+
+# Color block maximum
+bmonth <- matrix(df_abisko3$rain, byrow = TRUE, ncol = 7 * 4)
+wmax <- apply(bmonth, 1, which.max) + (seq_len(nrow(bmonth)) - 1) * ncol(bmonth)
+df_abisko3$cols <- factor(ifelse(seq_len(nrow(df_abisko3)) %in% wmax, 1, 2))
+
+
+xdat_week <- build.blocks(
+  df_abisko3$rain,
+  block = 7,
+  m = 4
+)
+xdat_month <- build.blocks(
+  df_abisko3$rain,
+  block = 7 * 4,
+  m = 3
+)
+
+xdat_year <- xdat_month[, 3]
+lb <- 10
+# mean(xdat_week < lb)
+# mean(xdat_month < lb)
+# mean(xdat_month[, 3] < lb)
+fit_week <- fit.gevblock(xdat = xdat_week, lb = lb, rounding = 0.1)
+fit_month <- fit.gevblock(xdat = xdat_month, lb = lb, rounding = 0.1)
+fit_year <- fit.gevblock(
+  xdat = xdat_month[, 3, drop = FALSE],
+  lb = lb,
+  rounding = 0.1
+)
+test_week <- test.blocksize(xdat = xdat_week, lb = lb, rounding = 0.1)
+test_month <- test.blocksize(xdat = xdat_month, lb = lb, rounding = 0.1)
+pvalsm <- test_month$pval
+```
+
+Since rainfall can be small, we left-censor maxima below 10 mm.
+
+- The proportion of points being left-censored is `r round(mean(xdat_week < lb), 2)` for weekly maxima, `r round(mean(xdat_month < lb), 2)` for monthly and none for seasonal.
+
+P-values for the test of max-stability: comparing 
+
+- 7-day to 28-day maxima ($m=4$) yields $p$-values less than $10^{-15}.$
+- 28-day to seasonal ($m=3$) leads to $p$-values of $`r round(pvalsm[1],2)`$ for $A_1$, $`r round(pvalsm[1],2)`$ for $A_2$ and $`r round(pvalsm[3],2)`$ for $A_3.$ 
+
+Thus, monthly blocks appear sufficiently long. 
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+# Profile likelihood
+
+# Function to calculate the GEV log likelihood with censored data
+gev.loglik.cens <- function(pars, xdat, lb, interval) {
+  delta <- interval[1] / 2
+  xdat <- as.numeric(xdat)
+  if (pars[2] < 0 | pars[3] < -1) {
+    return(-Inf)
+  }
+  obj <- sum(ifelse(
+    xdat < lb,
+    mev::pgev(lb, pars[1], pars[2], pars[3], log.p = TRUE),
+    log(
+      mev::pgev(xdat + delta, pars[1], pars[2], pars[3]) -
+        mev::pgev(xdat - delta, pars[1], pars[2], pars[3])
+    )
+  ))
+  obj
+}
+
+#' Profile log-likelihood for probability of exceedance
+gev.prof.prob <- function(
+  pars,
+  psi,
+  xquant,
+  xdat,
+  lb,
+  interval,
+  m = 1
+) {
+  sigma <- exp(pars[1])
+  xi <- pars[2]
+  mu <- xquant - sigma / xi * ((-log(1 - psi) / m)^(-xi) - 1)
+  gev.loglik.cens(
+    c(mu, sigma, xi),
+    xdat = xdat,
+    lb = lb,
+    interval = interval
+  )
+}
+
+# Sequence of values for log-probability at which to profile
+psi_seq <- exp(seq(-8.5, -2, by = 0.05))
+# Matrices for storing the other parameter vectors and the
+# negative profile log likelihood values
+prof_pars_wk <- prof_pars_mth <- prof_pars_yr <- matrix(
+  ncol = 2,
+  nrow = length(psi_seq)
+)
+prof_nll_wk <- prof_nll_mth <- prof_nll_yr <- numeric(length = length(psi_seq))
+
+
+# Obtain initial values for optimization from MLE
+init_wk <- c(log(fit_week[2]), fit_week[3])
+init_mth <- c(log(fit_month[2]), fit_month[3])
+init_yr <- c(log(fit_year[2]), fit_year[3])
+# Max-stability extrapolation of parameters from fit to monthly max to yearly
+w2y <- maxstable(fit_week, m = 12)
+m2y <- maxstable(fit_month, m = 3)
+# Maximum likelihood estimates from the models for annual probability of exceedance of 69.9 mm
+
+pexc_mle_wk <- mev::pgev(
+  q = 69.9,
+  w2y[1],
+  w2y[2],
+  w2y[3],
+  lower.tail = FALSE
+)
+pexc_mle_mth <- mev::pgev(
+  q = 69.9,
+  m2y[1],
+  m2y[2],
+  m2y[3],
+  lower.tail = FALSE
+)
+pexc_mle_yr <- mev::pgev(
+  q = 69.9,
+  fit_year[1],
+  fit_year[2],
+  fit_year[3],
+  lower.tail = FALSE
+)
+
+# Profile loop: start from MLE index, and go up/down
+is <- which.min(abs(psi_seq - pexc_mle_mth))
+n_psi <- length(psi_seq)
+for (i in c(is:n_psi, (is - 1):1)) {
+  opt_wk <- optim(
+    par = init_wk,
+    fn = gev.prof.prob,
+    method = "N",
+    control = list(fnscale = -1),
+    psi = psi_seq[i],
+    xquant = 69.9,
+    xdat = xdat_week,
+    lb = lb,
+    m = 12,
+    interval = 0.1
+  )
+  prof_nll_wk[i] <- opt_wk$value
+  prof_pars_wk[i, ] <- opt_wk$par
+  if (i != n_psi) {
+    init_wk <- opt_wk$par
+  } else {
+    init_wk <- prof_pars_wk[is, ]
+  }
+  opt_mth <- optim(
+    par = init_mth,
+    fn = gev.prof.prob,
+    method = "N",
+    control = list(fnscale = -1),
+    psi = psi_seq[i],
+    xquant = 69.9,
+    xdat = xdat_month,
+    lb = lb,
+    m = 3,
+    interval = 0.1
+  )
+  prof_nll_mth[i] <- opt_mth$value
+  prof_pars_mth[i, ] <- opt_mth$par
+  if (i != n_psi) {
+    init_mth <- opt_mth$par
+  } else {
+    init_mth <- prof_pars_mth[is, ]
+  }
+  opt_yr <- optim(
+    par = init_yr,
+    fn = gev.prof.prob,
+    method = "N",
+    control = list(fnscale = -1),
+    psi = psi_seq[i],
+    xquant = 69.9,
+    xdat = xdat_month[, 3],
+    lb = lb,
+    m = 1,
+    interval = 0.1
+  )
+  prof_nll_yr[i] <- opt_yr$value
+  prof_pars_yr[i, ] <- opt_yr$par
+  if (i != n_psi) {
+    init_yr <- opt_yr$par
+  } else {
+    init_yr <- prof_pars_yr[is, ]
+  }
+}
+# Calculate the profile log likelihood at the MLE
+max_pll_wk <- gev.loglik.cens(
+  pars = fit_week,
+  xdat = xdat_week,
+  lb = lb,
+  interval = 0.1
+)
+max_pll_mth <- gev.loglik.cens(
+  pars = fit_month,
+  xdat = xdat_month,
+  lb = lb,
+  interval = 0.1
+)
+max_pll_yr <- gev.loglik.cens(
+  pars = fit_year,
+  xdat = xdat_year,
+  lb = lb,
+  interval = 0.1
+)
+
+# Create a list wrapper, to pass to 'mev' eprof
+# routine to calculate confidence intervals
+pll_wk <- list(
+  pll = -prof_nll_wk,
+  mle = pexc_mle_wk,
+  maxpll = max_pll_wk,
+  psi = psi_seq,
+  psi.max = pexc_mle_wk,
+  r = sign(pexc_mle_wk - psi_seq) *
+    sqrt(2 * (max(prof_nll_wk) - prof_nll_wk))
+)
+
+pll_mth <- list(
+  pll = -prof_nll_mth,
+  mle = pexc_mle_mth,
+  maxpll = max_pll_mth,
+  psi = psi_seq,
+  psi.max = pexc_mle_mth,
+  r = sign(pexc_mle_mth - psi_seq) *
+    sqrt(2 * (max(prof_nll_mth) - prof_nll_mth))
+)
+
+pll_yr <- list(
+  pll = -prof_nll_yr,
+  mle = pexc_mle_yr,
+  maxpll = max_pll_yr,
+  psi = psi_seq,
+  psi.max = pexc_mle_yr,
+  r = sign(pexc_mle_yr - psi_seq) *
+    sqrt(2 * (max(prof_nll_yr) - prof_nll_yr))
+)
+class(pll_wk) <- class(pll_mth) <- class(pll_yr) <- "eprof"
+
+conf_wk <- confint(pll_wk)
+conf_mth <- confint(pll_mth)
+conf_yr <- confint(pll_yr)
+prof_abisko_df <-
+  data.frame(
+    p = rep(psi_seq, length.out = 3 * n_psi),
+    profile = c(
+      prof_nll_wk - max_pll_wk,
+      prof_nll_mth - max_pll_mth,
+      prof_nll_yr - max_pll_yr
+    ),
+    type = relevel(
+      factor(
+        rep(c("weekly", "28-days", "yearly"), each = n_psi),
+      ),
+      ref = "weekly"
+    )
+  )
+```
+
+## Risk assessment for Abisko rainfall
+
+```{r}
+#| eval: true
+#| echo: false
+#| label: fig-plots-Abisko
+#| fig-cap: "Time series of three-day cumulated rainfall measurements (in mm) and profile likelihood for the probability of having a summer rainfall exceeding 69.9mm based on the GEV model fitted to weekly, 28-days and yearly maxima (right). "
+#| fig-width: 11
+#| fig-height: 6
+#| message: false
+#| warning: false
+
+g1_abi <- ggplot(
+  data = df_abisko3 |> dplyr::filter(rain > 0),
+  mapping = aes(
+    x = time,
+    y = rain,
+    col = factor(rain <= 10)
+  )
+) +
+  geom_hline(yintercept = 10, col = "grey") +
+  geom_point() +
+  scale_color_grey() +
+  scale_y_continuous(limits = c(0, NA), expand = expansion()) +
+  scale_x_continuous(
+    breaks = c(1913, seq(1920, 2010, by = 10L), 2015),
+    limits = c(1913, 2016),
+    expand = expansion()
+  ) +
+  labs(
+    x = "",
+    y = "",
+    subtitle = "cumulative three-day rainfall (mm)"
+  ) +
+  theme_classic() +
+  theme(legend.position = "grey")
+
+
+g2_abi <- ggplot(
+  data = prof_abisko_df,
+  mapping = aes(x = p, col = type)
+) +
+  geom_hline(
+    yintercept = -qchisq(c(0.95, 0.99), df = 1) / 2,
+    alpha = 0.5,
+    linetype = "dashed"
+  ) +
+  geom_line(mapping = aes(y = profile), linewidth = 1.25) +
+  geom_rug(
+    data = data.frame(
+      p = c(conf_wk, conf_mth, conf_yr),
+      type = relevel(
+        factor(rep(c("weekly", "28-days", "yearly"), each = 3)),
+        ref = "weekly"
+      )
+    ),
+    mapping = aes(x = p, col = type),
+    linewidth = 1.25,
+    sides = "b"
+  ) +
+  # coord_cartesian(clip = "off") +
+  scale_x_continuous(
+    limits = c(0, 0.05),
+    expand = expansion(),
+    oob = scales::oob_keep
+  ) +
+  scale_y_continuous(
+    limits = c(-4, 0.1),
+    expand = expansion(add = c(0, 0.1)),
+    oob = scales::oob_keep
+  ) +
+  MetBrewer::scale_color_met_d("Hiroshige") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+g1_abi + g2_abi
+```
+
+
+
+## Summary
+
+::: {style="font-size: 85%;"}
+
+We propose likelihood ratio tests for testing max-stability for blocks of size $m$
+
+- Build block of $n/m \times m$ ordered data from maxima.
+- Check fit to largest (max of $m$) and use max-stability to detect departures.
+- Simulation studies show the test is powerful even in small samples.
+- The test with a single parameter seems more powerful than competitors, with lower values of $m$.
+
+Diagnostic plots based on bootstrap to account for goodness-of-fit.
+
+:::
+
+
+## Limitations {.smaller}
+
+
+
+- We consider only block maxima of length $m_2 = cm_1$ for $m_1, m_2, c \in \mathbb{N}$ (multiples):
+  - does not allow for comparison of blocks of size 2 vs 3, say.
+  - some data discarded if $n$ is not divisible by $m$ (but could use ideas from  @Simpson.Northrop:2026).
+  - in practice it is natural to consider aggregation of periods, e.g., monthly to yearly. 
+- The scheme leads to multiple testing if multiple values of $m$ and block lengths are considered:
+  - smaller values of $m$ should lead to higher power, as shown through simulations, 
+  - but the choice of $m$ should be dictated more by practical considerations.
+- Our approach is restricted to independent or stationary time series. 
+
+
+## Extensions and future work
+
+
+::: {style="font-size: 90%;"}
+
+- Combining model with estimates of the extremal index $\theta.$
+- Alternative estimators for the GEV built from sliding blocks [e.g., @Bucher.Zanger:2023].
+
+Theory for these is more complicated, owing to lack of genuine likelihood. 
+
+- Could consider Wald-based tests with sandwich-based or bootstrap covariance estimators.
+
+:::
+
+## CJS special number on "Modern Issues in Statistics Education"
+
+:::: {.columns}
+::: {.column width="50%"}
+::: {style="font-size: 70%;"}
+
+The Canadian Journal of Statistics (CJS) is planning a special issue on challenges and opportunities in statistics and data science education. We invite research papers and other forms of scholarly work, such as comprehensive reviews of research and scholarly teaching practice, and position papers from statistics and data science education scholars that offer evidence-based recommendations.
+
+
+
+Guest editors: Léo Belzile and Bethany White (University of Toronto).
+:::
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| eval: true
+#| echo: false
+#| out-width: '60%'
+knitr::include_graphics("figures/CJS_banner.jpg")
+```
+
+[Call for papers](https://onlinelibrary.wiley.com/page/journal/1708945x/homepage/call-for-papers).
+
+Submission deadline: October 15, 2026.
+:::
+::::
+
+## References

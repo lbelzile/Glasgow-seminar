@@ -1,0 +1,373 @@
+[
+  {
+    "objectID": "Block_size-presentation.html#block-maximum-method",
+    "href": "Block_size-presentation.html#block-maximum-method",
+    "title": "How long should a block be?",
+    "section": "Block maximum method",
+    "text": "Block maximum method\nIdea promoted for engineering applications by Emil Gumbel (cf. Gumbel 1958).\n\ndivide a (time) series of length \\(n\\) into \\(n_m\\) equal-length disjoint blocks of \\(m\\) successive observations,\nfit the generalized extreme value (GEV) distribution to the resulting sample of \\(n_m\\) block maxima,\nuse the fitted model for risk assessment.\n\nThis talk: how long should a block be?"
+  },
+  {
+    "objectID": "Block_size-presentation.html#motivating-example",
+    "href": "Block_size-presentation.html#motivating-example",
+    "title": "How long should a block be?",
+    "section": "Motivating example",
+    "text": "Motivating example\n\n\nFigure 1: Daily maximum wind gust speed in Cheeseboro, California, for January 1st to February 1st of 1996–2026, for a total of \\(31 \\times 32\\) measurements."
+  },
+  {
+    "objectID": "Block_size-presentation.html#extremal-types-theorem",
+    "href": "Block_size-presentation.html#extremal-types-theorem",
+    "title": "How long should a block be?",
+    "section": "Extremal types theorem",
+    "text": "Extremal types theorem\nThe justification for using the GEV comes from Fisher and Tippett (1928), Mises (1936), Gnedenko (1943).\nIf \\(G\\) is a distribution function and there exist location and scaling sequences \\(d_m\\) and \\(c_m&gt;0\\) such that the maximum of \\(m\\) observations has a non-degenerate limiting distribution \\[\n\\lim_{m \\to \\infty}G^m(c_mx+d_m) = F(x)\n\\] then \\(F(x)\\) must be a GEV distribution function."
+  },
+  {
+    "objectID": "Block_size-presentation.html#generalized-extreme-value-distribution",
+    "href": "Block_size-presentation.html#generalized-extreme-value-distribution",
+    "title": "How long should a block be?",
+    "section": "Generalized extreme value distribution",
+    "text": "Generalized extreme value distribution\nThe GEV distribution function is \\[\\begin{align*}\nF(x; \\mu, \\sigma, \\xi)=\\begin{cases}\n\\exp\\left[-\\left\\{1+\\xi \\frac{x-\\mu}{\\sigma}\\right\\}_{+}^{-1/\\xi}\\right], & \\xi \\neq 0, \\\\\n\\exp\\left[-\\exp\\left\\{-\\frac{x-\\mu}{\\sigma}\\right\\}\\right], & \\xi =0.\n\\end{cases}\n\\end{align*}\\] with location \\(\\mu\\in \\mathbb{R},\\) scale \\(\\sigma&gt;0\\) and shape \\(\\xi\\in \\mathbb{R}.\\)\nThe support of \\(\\mathsf{GEV}(\\mu, \\sigma, \\xi)\\) is \\(\\{x: \\sigma + \\xi(x-\\mu) &gt; 0\\}.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#regularity-conditions-and-normalizing-constants",
+    "href": "Block_size-presentation.html#regularity-conditions-and-normalizing-constants",
+    "title": "How long should a block be?",
+    "section": "Regularity conditions and normalizing constants",
+    "text": "Regularity conditions and normalizing constants\n\nSuppose that \\(\\lim_{m \\to \\infty}G^m(c_mx+d_m) = F(x)\\) for \\(F(x) \\sim \\mathsf{GEV}(0,1,\\xi).\\)\n\nAssume \\(G\\) is twice differentiable with possibly infinite endpoint \\(x^{\\star},\\) with density \\(g\\) and define \\(\\phi(x)=-G(x)\\log G(x)/g(x).\\)\nfor convergence to the GEV distribution, it is sufficient that \\(\\lim_{x \\to x^{\\star}} \\phi'(x)=\\xi^{\\star} \\in \\mathbb{R}\\) (so-called von Mises condition).\nThe normalizing constants are obtained from \\(-\\log G(d_m) = m^{-1}\\) and \\(c_m=\\phi(d_m)\\). The speed of convergence depends on the (unknown) \\(G.\\)\nPenultimate approximation (Smith 1987) is \\(\\mathsf{GEV}\\{d_m, c_m, \\phi'(d_m)\\}.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#quality-of-approximations",
+    "href": "Block_size-presentation.html#quality-of-approximations",
+    "title": "How long should a block be?",
+    "section": "Quality of approximations",
+    "text": "Quality of approximations\n\n\nFigure 2: Densities of GEV penultimate approximations (dashed blue) versus true distribution \\(G^{30}\\) (full black)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#max-stability",
+    "href": "Block_size-presentation.html#max-stability",
+    "title": "How long should a block be?",
+    "section": "Max-stability",
+    "text": "Max-stability\nThe GEV is characterized by max-stability:\nif \\(X_{j} \\stackrel{\\mathrm{iid}}{\\sim} \\mathsf{GEV}(\\mu, \\sigma, \\xi)\\), then for any \\(m,\\) \\[\\begin{align*}\nY = \\max\\{X_{1}, \\ldots, X_{m}\\}\n\\sim \\mathsf{GEV}(\\mu_m, \\sigma_m, \\xi),\n\\end{align*}\\] with \\[\\begin{align*}\n\\mu_m &=\\mu + \\sigma (m^\\xi-1)/\\xi, &\\sigma_m &= \\sigma m^\\xi, &\\text{if }\\xi &\\neq 0,\\\\ \\mu_m &= \\mu+\\sigma\\log m, &\n\\sigma_m &=\\sigma,&\\text{if }\\xi &= 0.\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "Block_size-presentation.html#penultimate-approximation-vs-max-stability",
+    "href": "Block_size-presentation.html#penultimate-approximation-vs-max-stability",
+    "title": "How long should a block be?",
+    "section": "Penultimate approximation vs max-stability",
+    "text": "Penultimate approximation vs max-stability\n\n\nFigure 3: GEV parameters based on max-stable (dashed), and the penultimate approximation (full) for Gaussian (top) and Weibull (bottom)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#research-question-how-to-choose-the-block-length",
+    "href": "Block_size-presentation.html#research-question-how-to-choose-the-block-length",
+    "title": "How long should a block be?",
+    "section": "Research question: How to choose the block length?",
+    "text": "Research question: How to choose the block length?\nTraditional extreme value bias-variance trade-off:\n\nSmaller block lengths may lead to poor GEV approximation (potentially biased extrapolation).\nLonger blocks lead to smaller sample sizes (more variability)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#other-considerations",
+    "href": "Block_size-presentation.html#other-considerations",
+    "title": "How long should a block be?",
+    "section": "Other considerations",
+    "text": "Other considerations\n\nData availability (frequency of records).\nBlock maximum is widely viewed as the more robust approach in the applied literature (compared to peaks-over-threshold).\nTheoretical consideration of asymptotic efficiency relative to peaks-over-threshold (Bücher and Zhou 2021).\nNatural (minimum) block length (e.g., annual for seasonally-varying data)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#literature-review",
+    "href": "Block_size-presentation.html#literature-review",
+    "title": "How long should a block be?",
+    "section": "Literature review",
+    "text": "Literature review\nSurprisingly, very little work in the area.\n\nWang et al. (2016) suggest using combinations of goodness-of-fit tests (such as Anderson–Darling or Kolmogorov–Smirnov).\nunpublished work of Dkengne et al. (2020) suggests parameter stability plot built using max-stability."
+  },
+  {
+    "objectID": "Block_size-presentation.html#testing-for-different-block-lengths",
+    "href": "Block_size-presentation.html#testing-for-different-block-lengths",
+    "title": "How long should a block be?",
+    "section": "Testing for different block lengths",
+    "text": "Testing for different block lengths\n\nConsider \\(nm\\) block maxima for \\(n, m \\in \\mathbb{N}.\\) We gather observations into an \\(n \\times m\\) matrix of ordered inputs.\n\n\n\n\n\nTable 1: Blocks of size \\(m=4\\) from daily maxima wind gusts (in km/h).\n\n\n\n\n\n    \n\n    \n\n    \n    \n    \n      \n        \n        \n        \n        \n        \n                \n                  14\n                  26\n                  65\n                  67\n                \n                \n                  9\n                  14\n                  18\n                  38\n                \n                \n                  11\n                  20\n                  30\n                  49\n                \n                \n                  13\n                  16\n                  19\n                  41\n                \n                \n                  20\n                  27\n                  28\n                  48\n                \n        \n      \n    \n\n\n\n\n\n\n\nRow \\(i\\) contains the order statistics \\(X_{i, (1)} \\leq \\cdots \\leq X_{i, (m)}.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#joint-distribution-of-order-statistics",
+    "href": "Block_size-presentation.html#joint-distribution-of-order-statistics",
+    "title": "How long should a block be?",
+    "section": "Joint distribution of order statistics",
+    "text": "Joint distribution of order statistics\nLet \\(X_{(1)} \\leq \\cdots  \\le X_{(m)}\\) denote order statistics.\nLet \\(F\\) and \\(f\\) be the CDF and density of \\(X_j \\stackrel{\\mathrm{iid}}{\\sim}\\mathsf{GEV}(\\mu, \\sigma, \\xi).\\)\nThe joint density of order statistics is the product of\n\nthe conditional \\(X_{(1)}, \\ldots, X_{(m-1)} \\mid X_{(m)} = x_{(m)},\\)\nthe marginal \\(X_{(m)}\\)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#conditional-density-of-lower-order-statistics",
+    "href": "Block_size-presentation.html#conditional-density-of-lower-order-statistics",
+    "title": "How long should a block be?",
+    "section": "Conditional density of lower order statistics",
+    "text": "Conditional density of lower order statistics\nThe conditional density of \\(X_{(1)}, \\ldots, X_{(m-1)} \\mid X_{(m)}\\) is \\[\\begin{align*}\nf_{{(1, \\ldots, m-1)} \\mid {(m)}}(\\boldsymbol{x}_{-(m)})\n&= (m-1)!\\prod_{j=1}^{m-1}\\frac{f(x_{(j)}; \\mu, \\sigma, \\xi)}{F(x_{(m)}; \\mu, \\sigma, \\xi)}\n\\end{align*}\\] so the \\((m-1)\\) smallest observations are, up to permutation, \\(\\mathsf{GEV}(\\mu, \\sigma, \\xi)\\) truncated above at \\(x_{(m)}.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#distribution-of-block-maximum",
+    "href": "Block_size-presentation.html#distribution-of-block-maximum",
+    "title": "How long should a block be?",
+    "section": "Distribution of block maximum",
+    "text": "Distribution of block maximum\nThe block maximum \\(Y=\\max(X_1,\\ldots, X_m)\\) has CDF \\(F_{(m)}(x)=F^m(x)\\) and density \\[\\begin{align*}\nf_{(m)}(x) &= m F(x; \\mu, \\sigma, \\xi)^{m-1}f(x; \\mu, \\sigma, \\xi) \\\\\n&= f(x; \\mu_m, \\sigma_m, \\xi),\n\\end{align*}\\] by max-stability."
+  },
+  {
+    "objectID": "Block_size-presentation.html#likelihood",
+    "href": "Block_size-presentation.html#likelihood",
+    "title": "How long should a block be?",
+    "section": "Likelihood",
+    "text": "Likelihood\n\nIn the simplest case, we have \\[\\begin{align*}\n\\mathcal{L}({\\boldsymbol{\\vartheta}}_0, {\\boldsymbol{\\vartheta}}_m)=\\prod_{i=1}^n f_{{(1, \\ldots, m-1)} \\mid {(m)}}(\\boldsymbol{x}_{i, -(m)};{\\boldsymbol{\\vartheta}}_0)f_{(m)}(x_{i,(m)}; {\\boldsymbol{\\vartheta}}_m),\n\\end{align*}\\] where\n\n\\({\\boldsymbol{\\vartheta}}_0 = (\\mu, \\sigma, \\xi)\\) are the parameters for \\(X_{i, (1)} \\leq \\cdots \\le X_{i, (m-1)}.\\)\n\\({\\boldsymbol{\\vartheta}}_m\\) are the parameters of the largest observation \\(X_{i, (m)}.\\)\n\nUnder the null hypothesis of max-stability, \\({\\boldsymbol{\\vartheta}}_m=(\\mu_m, \\sigma_m, \\xi) = g(\\boldsymbol{\\vartheta}_0),\\) say."
+  },
+  {
+    "objectID": "Block_size-presentation.html#rounding-and-left-censoring",
+    "href": "Block_size-presentation.html#rounding-and-left-censoring",
+    "title": "How long should a block be?",
+    "section": "Rounding and left-censoring",
+    "text": "Rounding and left-censoring\nEnvironmental measurements are frequently rounded to the nearest \\(\\delta\\) unit. We may also want to left-censor observations below \\(u.\\)\nConsider latent \\(X^*_i \\sim \\mathsf{GEV}(\\mu, \\sigma, \\xi)\\), where \\(X_{i,j} - \\delta/2 \\le X_i^* \\le X_{i,j}+ \\delta/2\\); the individual observation contribution to the likelihood when \\(x_{i,(j)} &gt; u\\) are \\[\\begin{align*}\nL_{i,j}(\\boldsymbol{\\vartheta}) = \\begin{cases}\nf(x_{i,(j)}; \\boldsymbol{\\vartheta}), & \\delta=0; \\\\\nF(x_{i,(j)}+\\delta/2; \\boldsymbol{\\vartheta})- F(\\max\\{x_{i,(j)}-\\delta/2, u\\}; \\boldsymbol{\\vartheta}), & \\delta &gt; 0.\n\\end{cases}\n\\end{align*}\\] The joint likelihood contributions for the \\((m-1)\\) lowest order statistics of \\(m\\) are from the GEV distribution right-truncated at \\(x_{(m)} + \\delta/2\\)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#joint-likelihood-with-censoring",
+    "href": "Block_size-presentation.html#joint-likelihood-with-censoring",
+    "title": "How long should a block be?",
+    "section": "Joint likelihood with censoring",
+    "text": "Joint likelihood with censoring\nThe likelihood contribution from a single vector \\(x_{i,(1)}, \\ldots, x_{i,(m)}\\) is \\[\\begin{align*}\nL_i(\\boldsymbol{\\vartheta}_0, \\boldsymbol{\\vartheta}_m)& = L_{i,m}(\\boldsymbol{\\vartheta}_m)^{w_{i,(m)}(\\boldsymbol{\\vartheta}_m)} F(u; \\boldsymbol{\\vartheta}_m)^{1-w_{i,(m)}(\\boldsymbol{\\vartheta}_m)} \\\\& \\times \\prod_{j=1}^{m-1} \\frac{L_{i,j}(\\boldsymbol{\\vartheta}_0)^{w_{i,(j)}(\\boldsymbol{\\vartheta}_0)} F(u; \\boldsymbol{\\vartheta}_0)^{1-w_{i,(j)}(\\boldsymbol{\\vartheta}_0)}}{F \\left(\\max\\{u, x_{i,(m)} + \\delta/2\\}; \\boldsymbol{\\vartheta}_0\\right)}\n\\end{align*}\\] where the weight \\(w_{i,j}(\\boldsymbol{\\vartheta})\\) indicates the probability that \\(X^*_{i,j} &gt; u\\) (expected likelihood) (Section 2.2 of Varty et al. 2021)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#alternative-hypotheses",
+    "href": "Block_size-presentation.html#alternative-hypotheses",
+    "title": "How long should a block be?",
+    "section": "Alternative hypotheses",
+    "text": "Alternative hypotheses\nThe idea underlying our testing procedure is to let the parameters of the block maximum differ, by\n\n\n\\(A_1\\): setting \\(\\mathcal{H}_a: {\\boldsymbol{\\vartheta}}_m = (\\mu_{\\omega m}, \\sigma_{\\omega m}, \\xi)\\) for some scaling \\(\\omega &gt; 0\\), and testing \\(\\mathcal{H}_0: \\omega=1.\\)\n\\(A_2\\): allowing both location and scale to vary \\(\\mathcal{H}_a: {\\boldsymbol{\\vartheta}}_m = (\\mu_m+\\nu, \\phi \\sigma_m, \\xi)\\) and testing \\(\\mathcal{H}_0: \\nu=0, \\phi=1.\\)\n\\(A_3\\): letting all three parameters vary \\(\\mathcal{H}_a: {\\boldsymbol{\\vartheta}}_m = (\\mu_m+\\nu, \\phi \\sigma_m, \\xi + \\zeta)\\) and testing \\(\\mathcal{H}_0:\\nu=0, \\phi=1, \\zeta=0.\\)\n\nWe use likelihood ratio statistics to compare the models \\(\\mathcal{H}_0\\) and \\(\\mathcal{H}_a.\\) The asymptotic distribution of the test is \\(\\chi^2_k\\) with \\(k\\in\\{1, 2, 3\\}.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#setup-of-power-study",
+    "href": "Block_size-presentation.html#setup-of-power-study",
+    "title": "How long should a block be?",
+    "section": "Setup of power study",
+    "text": "Setup of power study\nWe consider different scenarios to assess the power of tests:\n\ndifferent parametric distributions for alternatives,\nsample sizes \\(n \\in \\{25,50,100\\},\\)\nnumber of order statistics \\(m\\in \\{2, 5, 10\\},\\)\nthree alternatives \\(\\mathcal{H}_a.\\)\n\nAll power curves are based on 2000 replications, with tests conducted at level 5%."
+  },
+  {
+    "objectID": "Block_size-presentation.html#alternative-distributions",
+    "href": "Block_size-presentation.html#alternative-distributions",
+    "title": "How long should a block be?",
+    "section": "Alternative distributions",
+    "text": "Alternative distributions\nWe consider maxima of\n\n\\(\\mathsf{normal}(0,1)\\) and\n\\(\\mathsf{Weibull}(1, 0.8).\\)\n\nwith distribution \\(G\\) and block of size \\(30,\\) simulate\n\n\\(X_{(1)}, \\ldots, X_{(m-1)}\\) from \\(G^{30},\\)\n\\(X_{(m)}\\) from \\(G^{30\\delta},\\) but left-truncated at \\(x_{(m-1)}\\)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#power-curves",
+    "href": "Block_size-presentation.html#power-curves",
+    "title": "How long should a block be?",
+    "section": "Power curves",
+    "text": "Power curves"
+  },
+  {
+    "objectID": "Block_size-presentation.html#size-of-tests",
+    "href": "Block_size-presentation.html#size-of-tests",
+    "title": "How long should a block be?",
+    "section": "Size of tests",
+    "text": "Size of tests\n\n\n\n\n\n\n\n\n\n\n\nm\n\n\n2\n\n\n\n\n\n\n5\n\n\n\n\n\n\n10\n\n\n\n\n\n\n\n\n\n\n\n\nn\n\n\n25\n\n\n50\n\n\n100\n\n\n25\n\n\n50\n\n\n100\n\n\n25\n\n\n50\n\n\n100\n\n\n\n\ndistribution\n\n\nalt\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWeibull\n\n\nA1\n\n\n\n\n6.3\n\n\n5.7\n\n\n5.7\n\n\n6.0\n\n\n5.9\n\n\n5.1\n\n\n5.5\n\n\n5.5\n\n\n5.1\n\n\n\n\n\n\nA2\n\n\n\n\n6.0\n\n\n6.1\n\n\n5.8\n\n\n6.7\n\n\n5.3\n\n\n4.5\n\n\n6.0\n\n\n5.5\n\n\n5.5\n\n\n\n\n\n\nA3\n\n\n\n\n7.9\n\n\n7.9\n\n\n6.9\n\n\n7.8\n\n\n6.2\n\n\n5.5\n\n\n6.6\n\n\n5.5\n\n\n6.3\n\n\n\n\nnormal\n\n\nA1\n\n\n\n\n5.8\n\n\n5.2\n\n\n5.5\n\n\n5.8\n\n\n5.6\n\n\n5.1\n\n\n5.1\n\n\n5.8\n\n\n5.0\n\n\n\n\n\n\nA2\n\n\n\n\n5.7\n\n\n6.0\n\n\n5.6\n\n\n5.9\n\n\n5.8\n\n\n4.8\n\n\n4.4\n\n\n5.8\n\n\n5.1\n\n\n\n\n\n\nA3\n\n\n\n\n8.8\n\n\n8.4\n\n\n7.0\n\n\n7.0\n\n\n6.4\n\n\n5.8\n\n\n5.1\n\n\n5.8\n\n\n5.6"
+  },
+  {
+    "objectID": "Block_size-presentation.html#summary",
+    "href": "Block_size-presentation.html#summary",
+    "title": "How long should a block be?",
+    "section": "Summary",
+    "text": "Summary\n\nAs expected, power increases with the sample size \\(n\\).\nPerhaps surprisingly, the test has more power when \\(m\\) is small! Possibly due to alternative.\nAlternative 1 is often the most powerful (less degrees of freedom), despite misspecification.\nThere is a small size distortion (up to about 5%) for alternative \\(A_3\\) in small samples."
+  },
+  {
+    "objectID": "Block_size-presentation.html#stationary-sequences-with-extremal-clustering",
+    "href": "Block_size-presentation.html#stationary-sequences-with-extremal-clustering",
+    "title": "How long should a block be?",
+    "section": "Stationary sequences with extremal clustering",
+    "text": "Stationary sequences with extremal clustering\n\nTo investigate serial dependence, we also consider data from first-order max-autoregressive (MAR) processes parametrized in terms of the extremal index \\(\\theta.\\)\nConsider the stochastic process obtained through the recursion (Valadares Tavares 1977) \\[\\begin{align*}\nX_i &= \\max\\{X_{i-1}, Z_i\\} +\\log(1 - \\theta), \\quad i \\geq 1\n\\\\ Z_i &\\sim \\mathsf{GEV}\\{\\log(\\theta) - \\log(1-\\theta),1,0\\}\n\\end{align*}\\] The margins are standard Gumbel, \\(X_i \\sim \\mathsf{GEV}(0,1,0),\\) while the distribution of \\(Y = \\max\\{X_1, \\ldots, X_{m}\\}\\) is Gumbel with location \\(\\log[(m-1)\\theta+1].\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#stationary-setting",
+    "href": "Block_size-presentation.html#stationary-setting",
+    "title": "How long should a block be?",
+    "section": "Stationary setting",
+    "text": "Stationary setting\nThe extremal types theorem extends to stationary time series (Leadbetter 1974, 1983; Leadbetter et al. 1983).\nUnder a condition \\(D(u_n)\\) and for extremal index \\(\\theta \\in (0,1],\\) we get instead \\[\\begin{align*}\n\\lim_{m \\to \\infty} G^{\\theta m}(c_{m}x+d_{m})&= F(x)\n\\end{align*}\\] or equivalently \\[\\begin{align*}\n\\lim_{m \\to \\infty} G^{m}(c_{\\theta m}x+d_{\\theta m}) &= F(x).\n\\end{align*}\\]"
+  },
+  {
+    "objectID": "Block_size-presentation.html#location-parameters-of-stationary-sequences",
+    "href": "Block_size-presentation.html#location-parameters-of-stationary-sequences",
+    "title": "How long should a block be?",
+    "section": "Location parameters of stationary sequences",
+    "text": "Location parameters of stationary sequences\nMax-stability holds asymptotically, but with \\(m\\theta\\) rather than \\(m\\).\n\n\n\nFigure 4: MAR with \\(\\xi=0\\) and \\(\\theta=0.5\\): time series of simulated values (left) and location parameters of the Gumbel maxima based on extrapolating to blocks of size \\(m\\), taking \\(\\log(m)\\) (iid) and \\(\\log(m\\theta)\\) (stationary) as location parameters."
+  },
+  {
+    "objectID": "Block_size-presentation.html#power-curves---max-autoregressive",
+    "href": "Block_size-presentation.html#power-curves---max-autoregressive",
+    "title": "How long should a block be?",
+    "section": "Power curves - max autoregressive",
+    "text": "Power curves - max autoregressive"
+  },
+  {
+    "objectID": "Block_size-presentation.html#power-study---max-autoregressive",
+    "href": "Block_size-presentation.html#power-study---max-autoregressive",
+    "title": "How long should a block be?",
+    "section": "Power study - max-autoregressive",
+    "text": "Power study - max-autoregressive"
+  },
+  {
+    "objectID": "Block_size-presentation.html#comments-on-power-curves",
+    "href": "Block_size-presentation.html#comments-on-power-curves",
+    "title": "How long should a block be?",
+    "section": "Comments on power curves",
+    "text": "Comments on power curves\n\nMore discrepancies are expected for smaller values of \\(\\theta,\\) as the average cluster size is \\(1/\\theta,\\) the reciprocal of the extremal index.\nAs the block length increases, the effect of \\(\\theta\\) is captured through parameter estimates and we fail to reject for larger \\(\\theta,\\) as expected.\nAlternative 3 suffers again from size distortion, especially in small samples (either when \\(m\\) or \\(n\\) is small)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#diagnostic-plots",
+    "href": "Block_size-presentation.html#diagnostic-plots",
+    "title": "How long should a block be?",
+    "section": "Diagnostic plots",
+    "text": "Diagnostic plots\nWe propose quantile-quantile plots to assess the goodness-of-fit of the model.\nAmong quantities of interest\n\nall maxima,\nthe block maximum \\(X_{(m)}\\).\n\nWe use a parametric bootstrap scheme for uncertainty quantification."
+  },
+  {
+    "objectID": "Block_size-presentation.html#confidence-intervals-for-probability-probability-plots",
+    "href": "Block_size-presentation.html#confidence-intervals-for-probability-probability-plots",
+    "title": "How long should a block be?",
+    "section": "Confidence intervals for probability-probability plots",
+    "text": "Confidence intervals for probability-probability plots\nSäilynoja et al. (2022) outlines a method for building simultaneous confidence intervals for tests of uniformity in probability-probability plots, evaluated at \\(N\\) fixed plotting positions \\(\\nu_1, \\ldots, \\nu_N \\in (0,1)\\).\nWe propose a modification that accounts for estimation uncertainty and potentially unequal samples sizes due to rounding."
+  },
+  {
+    "objectID": "Block_size-presentation.html#building-confidence-intervals",
+    "href": "Block_size-presentation.html#building-confidence-intervals",
+    "title": "How long should a block be?",
+    "section": "Building confidence intervals",
+    "text": "Building confidence intervals\n\nConsider the empirical distribution function (ECDF) \\(\\mathsf{ECDF}(\\nu; \\boldsymbol{V}) = n^{-1} \\sum_{i=1}^n \\mathsf{1}_{\\nu \\leq V_i}.\\)\nIf \\(V_i\\) are independent uniforms, then \\(n\\mathsf{ECDF}(\\nu; \\boldsymbol{V})\\) is binomial with \\(n\\) trials and probability of success \\(\\nu,\\) whose distribution we denote \\(H(\\cdot; n, \\nu).\\)\nWe can obtain a pointwise confidence interval at any value \\(\\nu\\) from the quantile function of the binomial."
+  },
+  {
+    "objectID": "Block_size-presentation.html#simultaneous-intervals",
+    "href": "Block_size-presentation.html#simultaneous-intervals",
+    "title": "How long should a block be?",
+    "section": "Simultaneous intervals",
+    "text": "Simultaneous intervals\nTo obtain simultaneous confidence interval for points \\(\\nu_1, \\ldots, \\nu_N,\\) Säilynoja et al. (2022) consider simulation of \\(B\\) uniform samples of size \\(n\\).\nFor the \\(b\\)th bootstrap, generate \\(\\boldsymbol{v}_b \\in [0,1]^n\\) uniform and find the minimum level \\(\\alpha_b\\) such that the entire scaled ECDF lies inside the interval, where for \\(i=1, \\ldots, N\\) and \\(b = 1, \\ldots, B\\) \\[\\begin{align*}\nt_{l,i} &=H\\left[n\\mathsf{ECDF}(\\nu_i; \\boldsymbol{v}_b); n, \\nu_i\\right] \\\\\nt_{u,i} &= 1 - H\\left[n\\mathsf{ECDF}(\\nu_i; \\boldsymbol{v}_b)-1; n, \\nu_i\\right]\\\\\n\\alpha_b &= 2 \\min_{i=1}^N  \\min \\{ t_{l,i}, t_{u,i}\\}.\n\\end{align*}\\]\nFor simultaneous intervals, use level \\(\\alpha^*,\\) the \\(\\alpha\\) quantile of \\(\\alpha_1, \\ldots, \\alpha_B.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#parametric-bootstrap",
+    "href": "Block_size-presentation.html#parametric-bootstrap",
+    "title": "How long should a block be?",
+    "section": "Parametric bootstrap",
+    "text": "Parametric bootstrap\nA conventional parametric bootstrap to test properties of the statistic \\(S(\\boldsymbol{\\vartheta})\\) based on the MLE \\(\\widehat{\\boldsymbol{\\vartheta}}\\) would\n\nsimulate GEV via the quantile function, \\(X^*_{j} \\sim \\mathsf{GEV}(\\widehat{\\mu}, \\widehat{\\sigma}, \\widehat{\\xi}).\\)\nobtain bootstrap maximum likelihood estimates \\(\\widehat{\\boldsymbol{\\vartheta}}^{*}\\) from \\(\\boldsymbol{X}^*.\\)\nTransform observations to uniform via the distribution function \\(F(X_{j}; \\widehat{\\boldsymbol{\\vartheta}}^{*})\\) or \\(F[X_{(m)}; g(\\widehat{\\boldsymbol{\\vartheta}}^*)].\\)\ncompute the ECDF of the resulting uniform sample and evaluate it at \\(\\nu_1=1/N, \\ldots, \\nu_{N-1} = (N-1)/N\\)\nobtain \\(\\alpha_b\\) from the formula on the previous slide.\n\nThe procedure is repeated \\(B\\) times and we obtain the overall level \\(\\alpha^* &lt; \\alpha\\) for simultaneous confidence intervals."
+  },
+  {
+    "objectID": "Block_size-presentation.html#complications-from-rounding-and-censoring",
+    "href": "Block_size-presentation.html#complications-from-rounding-and-censoring",
+    "title": "How long should a block be?",
+    "section": "Complications from rounding and censoring",
+    "text": "Complications from rounding and censoring\nFor rounded and left-censored data, we modify the bootstrap scheme as follows:\n\nThe \\(n\\) bootstrap draws are rounded to the nearest \\(\\delta\\).\nThe MLE is computed using likelihood with left-censoring and interval-censoring.\nWe impute the latent variables \\(X^*\\) for the rounded values, and retain only those above \\(u\\), leading to samples of size \\(n_b \\leq n.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#marginal-likelihood",
+    "href": "Block_size-presentation.html#marginal-likelihood",
+    "title": "How long should a block be?",
+    "section": "Marginal likelihood",
+    "text": "Marginal likelihood\nSince interest lies in extrapolation, we can also consider estimation of GEV parameters based on the marginal distribution of \\(X_{(1)}, \\ldots, X_{(m-1)}\\), where \\[\\begin{align*}\n\\mathcal{L}_{\\text{marg}}(\\boldsymbol{\\theta}) &= \\prod_{i=1}^n f_{(1),\\ldots, (m-1)}(\\boldsymbol{x}_i; \\boldsymbol{\\theta})\\\\&\\propto \\prod_{i=1}^n\\{1-F(x_{i,(m-1)})\\}\\prod_{j=1}^{m-1} f(x_{i,(j)};\\boldsymbol{\\theta})\n\\end{align*}\\] which amounts to right-censoring the largest observation."
+  },
+  {
+    "objectID": "Block_size-presentation.html#disadvantages-of-the-marginal-likelihood",
+    "href": "Block_size-presentation.html#disadvantages-of-the-marginal-likelihood",
+    "title": "How long should a block be?",
+    "section": "(Dis)advantages of the marginal likelihood",
+    "text": "(Dis)advantages of the marginal likelihood\n\nAvoids using the maximum \\(X_{(m)}\\) both for model estimation and goodness-of-fit: no double dipping.\nMust also include the inequality constraint \\(\\sigma_0+\\xi_0 (\\max_{i} x_{i,(m)}-\\mu_0) &gt; 0\\) on the optimization.\n\n\n\nDiscarding the largest observation leads to a loss of information: with \\(m=4\\), we calculate the efficiency for \\(\\boldsymbol{\\vartheta}=(\\mu=0, \\sigma=1, \\xi),\\)\\[r(\\boldsymbol{\\vartheta})=\\frac{ |\\imath_{\\text{marg}}(\\boldsymbol{\\vartheta})|^{1/3}}{|\\imath_{\\text{full}}(\\boldsymbol{\\vartheta})|^{1/3}},\\] where \\(\\imath\\) is the Fisher information."
+  },
+  {
+    "objectID": "Block_size-presentation.html#marginal-likelihood-1",
+    "href": "Block_size-presentation.html#marginal-likelihood-1",
+    "title": "How long should a block be?",
+    "section": "Marginal likelihood",
+    "text": "Marginal likelihood\n\n\nFigure 5: Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape \\(\\xi\\) for \\(m \\in \\{2, 10\\}\\) and \\(n \\in \\{25,100\\}\\) for different estimators, based on 1000 Monte Carlo samples (right)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#cheeseboro-wind-gusts",
+    "href": "Block_size-presentation.html#cheeseboro-wind-gusts",
+    "title": "How long should a block be?",
+    "section": "Cheeseboro wind gusts",
+    "text": "Cheeseboro wind gusts\nWe use daily data from the Western Regional Climate Center for the Cheeseboro weather station.\nThe data consist of daily maximum gust wind speed (in meters per second) for 1 January to 1 February inclusive between 1996 and 2026, a total of 961 records.\nWe test for different block sizes \\(m \\in \\{1, 2, 4, 8, 16, 32\\}\\) days."
+  },
+  {
+    "objectID": "Block_size-presentation.html#diagnostic-plots-1",
+    "href": "Block_size-presentation.html#diagnostic-plots-1",
+    "title": "How long should a block be?",
+    "section": "Diagnostic plots",
+    "text": "Diagnostic plots\n\n\nFigure 6: Gumbel plot of \\(m\\)-day maxima against standard Gumbel plotting positions \\(-\\log[-\\log\\{i/(n_m+1)\\}]\\) for the Cheeseboro wind gust data.\n\nPlot à la Cox et al. (2002). With Gumbel fit, lines should be parallel."
+  },
+  {
+    "objectID": "Block_size-presentation.html#p-values-for-test-for-wind-gusts-at-cheeseboro",
+    "href": "Block_size-presentation.html#p-values-for-test-for-wind-gusts-at-cheeseboro",
+    "title": "How long should a block be?",
+    "section": "P-values for test for wind gusts at Cheeseboro",
+    "text": "P-values for test for wind gusts at Cheeseboro\n\n\n\n\nTable 2: P-values (rounded to three digits) for the test of max-stability.\n\n\n\n\n\n    \n\n    \n\n    \n    \n    \n      \n        \n        \n\n \n\\(c=2\\)\n\\(c=4\\)\n \n\n              \n                block\n                \\(A_1\\)\n                \\(A_2\\)\n                \\(A_3\\)\n                \\(A_1\\)\n                \\(A_2\\)\n                \\(A_3\\)\n              \n        \n        \n        \n                \n                  \\(m=1\\)\n                  0\n                  0\n                  0\n                  0\n                  0\n                  0\n                \n                \n                  \\(m=2\\)\n                  0.013\n                  0.045\n                  0\n                  0.12\n                  0.29\n                  0\n                \n                \n                  \\(m=4\\)\n                  0.373\n                  0.537\n                  0.16\n                  0.19\n                  0.4\n                  0.18\n                \n                \n                  \\(m=8\\)\n                  0.135\n                  0.316\n                  0.45\n                  0.64\n                  0.76\n                  0.81"
+  },
+  {
+    "objectID": "Block_size-presentation.html#probability-probability-plots-of-maxima",
+    "href": "Block_size-presentation.html#probability-probability-plots-of-maxima",
+    "title": "How long should a block be?",
+    "section": "Probability-probability plots of maxima",
+    "text": "Probability-probability plots of maxima"
+  },
+  {
+    "objectID": "Block_size-presentation.html#risk-extrapolation",
+    "href": "Block_size-presentation.html#risk-extrapolation",
+    "title": "How long should a block be?",
+    "section": "Risk extrapolation",
+    "text": "Risk extrapolation\n\nThe block length can have a sizeable impact on risk estimation (sample maximum is 92 mph \\(\\sim\\) 148km/h). Shape of \\(\\widehat{\\xi}=0.18\\) for \\(m=1,\\) versus \\(\\xi=-0.09\\) for \\(m=4.\\)"
+  },
+  {
+    "objectID": "Block_size-presentation.html#inference-for-extremes",
+    "href": "Block_size-presentation.html#inference-for-extremes",
+    "title": "How long should a block be?",
+    "section": "Inference for extremes",
+    "text": "Inference for extremes\nUse GEV model fitted to blocks of size \\(4\\) days to calculate risk measures for the maximum 50 years wind gust, by using the max-stability relationship with \\(m=8 \\times 50.\\)\n\nThe estimated median of half-century maximum daily wind gust is 86.73 miles per hour\n95% profile-based confidence intervals: (83.06, 105.07) mph.\nNegligible serial correlation."
+  },
+  {
+    "objectID": "Block_size-presentation.html#application-2-landslide-triggering-rainfall-episodes",
+    "href": "Block_size-presentation.html#application-2-landslide-triggering-rainfall-episodes",
+    "title": "How long should a block be?",
+    "section": "Application 2: landslide-triggering rainfall episodes",
+    "text": "Application 2: landslide-triggering rainfall episodes\n\nWe look at data from the Abisko scientific research station, located in Lapland (Sweden).\n\nThe daily data run from January 1913 until December 2014.\nThe region around the station is prone to landslides, which are caused by prolonged heavy rainfall episodes.\nGuzzetti et al. (2007) identify intensity-duration combinations that are likely to lead to landslides, for three day rainfall, rainfall episodes beyond 69.9mm;\n\nWe compute 3 day running sums and consider rainfall with 12 periods of 7 days from June 15th every year to ensure approximate stationarity."
+  },
+  {
+    "objectID": "Block_size-presentation.html#tests-for-block-length",
+    "href": "Block_size-presentation.html#tests-for-block-length",
+    "title": "How long should a block be?",
+    "section": "Tests for block-length",
+    "text": "Tests for block-length\nSince rainfall can be small, we left-censor maxima below 10 mm.\n\nThe proportion of points being left-censored is 0.62 for weekly maxima, 0.19 for monthly and none for seasonal.\n\nP-values for the test of max-stability: comparing\n\n7-day to 28-day maxima (\\(m=4\\)) yields \\(p\\)-values less than \\(10^{-15}.\\)\n28-day to seasonal (\\(m=3\\)) leads to \\(p\\)-values of \\(0.41\\) for \\(A_1\\), \\(0.41\\) for \\(A_2\\) and \\(0.79\\) for \\(A_3.\\)\n\nThus, monthly blocks appear sufficiently long."
+  },
+  {
+    "objectID": "Block_size-presentation.html#risk-assessment-for-abisko-rainfall",
+    "href": "Block_size-presentation.html#risk-assessment-for-abisko-rainfall",
+    "title": "How long should a block be?",
+    "section": "Risk assessment for Abisko rainfall",
+    "text": "Risk assessment for Abisko rainfall\n\n\nFigure 7: Time series of three-day cumulated rainfall measurements (in mm) and profile likelihood for the probability of having a summer rainfall exceeding 69.9mm based on the GEV model fitted to weekly, 28-days and yearly maxima (right)."
+  },
+  {
+    "objectID": "Block_size-presentation.html#summary-1",
+    "href": "Block_size-presentation.html#summary-1",
+    "title": "How long should a block be?",
+    "section": "Summary",
+    "text": "Summary\n\nWe propose likelihood ratio tests for testing max-stability for blocks of size \\(m\\)\n\nBuild block of \\(n/m \\times m\\) ordered data from maxima.\nCheck fit to largest (max of \\(m\\)) and use max-stability to detect departures.\nSimulation studies show the test is powerful even in small samples.\nThe test with a single parameter seems more powerful than competitors, with lower values of \\(m\\).\n\nDiagnostic plots based on bootstrap to account for goodness-of-fit."
+  },
+  {
+    "objectID": "Block_size-presentation.html#limitations",
+    "href": "Block_size-presentation.html#limitations",
+    "title": "How long should a block be?",
+    "section": "Limitations",
+    "text": "Limitations\n\nWe consider only block maxima of length \\(m_2 = cm_1\\) for \\(m_1, m_2, c \\in \\mathbb{N}\\) (multiples):\n\ndoes not allow for comparison of blocks of size 2 vs 3, say.\nsome data discarded if \\(n\\) is not divisible by \\(m\\) (but could use ideas from Simpson and Northrop (2026)).\nin practice it is natural to consider aggregation of periods, e.g., monthly to yearly.\n\nThe scheme leads to multiple testing if multiple values of \\(m\\) and block lengths are considered:\n\nsmaller values of \\(m\\) should lead to higher power, as shown through simulations,\nbut the choice of \\(m\\) should be dictated more by practical considerations.\n\nOur approach is restricted to independent or stationary time series."
+  },
+  {
+    "objectID": "Block_size-presentation.html#extensions-and-future-work",
+    "href": "Block_size-presentation.html#extensions-and-future-work",
+    "title": "How long should a block be?",
+    "section": "Extensions and future work",
+    "text": "Extensions and future work\n\n\nCombining model with estimates of the extremal index \\(\\theta.\\)\nAlternative estimators for the GEV built from sliding blocks (e.g., Bücher and Zanger 2023).\n\nTheory for these is more complicated, owing to lack of genuine likelihood.\n\nCould consider Wald-based tests with sandwich-based or bootstrap covariance estimators."
+  },
+  {
+    "objectID": "Block_size-presentation.html#cjs-special-number-on-modern-issues-in-statistics-education",
+    "href": "Block_size-presentation.html#cjs-special-number-on-modern-issues-in-statistics-education",
+    "title": "How long should a block be?",
+    "section": "CJS special number on “Modern Issues in Statistics Education”",
+    "text": "CJS special number on “Modern Issues in Statistics Education”\n\n\n\nThe Canadian Journal of Statistics (CJS) is planning a special issue on challenges and opportunities in statistics and data science education. We invite research papers and other forms of scholarly work, such as comprehensive reviews of research and scholarly teaching practice, and position papers from statistics and data science education scholars that offer evidence-based recommendations.\nGuest editors: Léo Belzile and Bethany White (University of Toronto).\n\n\n\n\n\n\n\n\n\n\n\nCall for papers.\nSubmission deadline: October 15, 2026."
+  },
+  {
+    "objectID": "Block_size-presentation.html#references",
+    "href": "Block_size-presentation.html#references",
+    "title": "How long should a block be?",
+    "section": "References",
+    "text": "References\n\n\n\n\nBücher, Axel, and Leandra Zanger. 2023. “On the Disjoint and Sliding Block Maxima Method for Piecewise Stationary Time Series.” The Annals of Statistics 51 (2): 573–98. https://doi.org/10.1214/23-aos2260.\n\n\nBücher, Axel, and Chen Zhou. 2021. “A Horse Race Between the Block Maxima Method and the Peak-over-Threshold Approach.” Statistical Science 36 (3): 360–78. https://doi.org/10.1214/20-sts795.\n\n\nCox, D. R., V. S. Isham, and P. J. Northrop. 2002. “Floods: Some Probabilistic and Statistical Approaches.” Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences 360 (1796): 1389–408. https://doi.org/10.1098/rsta.2002.1006.\n\n\nDkengne, Pascal Sielenou, Stéphane Girard, and Samia Ahiad. 2020. An Automatic Procedure to Select a Block Size in the Continuous Generalized Extreme Value Model Estimation. https://inria.hal.science/hal-02952279.\n\n\nFisher, R. A., and L. H. C. Tippett. 1928. “Limiting Forms of the Frequency Distribution of the Largest or Smallest Member of a Sample.” Mathematical Proceedings of the Cambridge Philosophical Society 24 (2): 180–90. https://doi.org/10.1017/S0305004100015681.\n\n\nGnedenko, B. 1943. “Sur La Distribution Limite Du Terme Maximum d’une Série Aléatoire.” Annals of Mathematics 44 (3): 423–53. https://doi.org/10.2307/1968974.\n\n\nGumbel, E. J. 1958. Statistics of Extremes. Columbia University Press. https://doi.org/10.7312/gumb92958.\n\n\nGuzzetti, F., S. Peruccacci, M. Rossi, and C. P. Stark. 2007. “Rainfall Thresholds for the Initiation of Landslides in Central and Southern Europe.” Meteorology and Atmospheric Physics 98 (3): 239–67. https://doi.org/10.1007/s00703-007-0262-7.\n\n\nLeadbetter, M. R. 1974. “On Extreme Values in Stationary Sequences.” Zeitschrift für Wahrscheinlichkeitstheorie Und Verwandte Gebiete 28 (4): 289–303. https://doi.org/10.1007/BF00532947.\n\n\nLeadbetter, M. R. 1983. “Extremes and Local Dependence in Stationary Sequences.” Zeitschrift für Wahrscheinlichkeitstheorie Und Verwandte Gebiete 65 (2): 291–306. https://doi.org/10.1007/BF00532484.\n\n\nLeadbetter, M. R., Georg Lindgren, and Holger Rootzén. 1983. Extremes and Related Properties of Random Sequences and Processes. 1st ed. Springer. https://doi.org/10.1007/978-1-4612-5449-2.\n\n\nMises, Richard von. 1936. “La Distribution de La Plus Grande de \\(n\\) Valeurs.” Revue Mathématique de l’Union Interbalkanique 1: 141–60.\n\n\nSäilynoja, Teemu, Paul-Christian Bürkner, and Aki Vehtari. 2022. “Graphical Test for Discrete Uniformity and Its Applications in Goodness-of-Fit Evaluation and Multiple Sample Comparison.” Statistics and Computing 32 (2): 32. https://doi.org/10.1007/s11222-022-10090-6.\n\n\nSimpson, Emma S., and Paul J. Northrop. 2026. “Accounting for Missing Data When Modelling Block Maxima.” Environmetrics 37 (2): e70075. https://doi.org/10.1002/env.70075.\n\n\nSmith, Richard L. 1987. Approximations in Extreme Value Theory. Department of Statistics; Operations Research, University of North Carolina. https://lbelzile.bitbucket.io/papers/Smith-1987-Approximations-in-extreme-value-theory.pdf.\n\n\nValadares Tavares, L. 1977. “The Exact Distribution of Extremes of a Non-Gaussian Process.” Stochastic Processes and Their Applications 5 (2): 151–56. https://doi.org/10.1016/0304-4149(77)90026-6.\n\n\nVarty, Zak, Jonathan A. Tawn, Peter M. Atkinson, and Stijn Bierman. 2021. Inference for Extreme Earthquake Magnitudes Accounting for a Time-Varying Measurement Process. https://doi.org/10.48550/arXiv.2102.00884.\n\n\nWang, Jixin, Shuang You, Yuqian Wu, Yingshuang Zhang, and Shibo Bin. 2016. “A Method of Selecting the Block Size of BMM for Estimating Extreme Loads in Engineering Vehicles.” Mathematical Problems in Engineering 2016 (1): 6372197. https://doi.org/10.1155/2016/6372197."
+  }
+]
