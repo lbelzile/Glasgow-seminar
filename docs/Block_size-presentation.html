@@ -902,19 +902,19 @@ t_{u,i} &amp;= 1 - H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b)-1; n, \nu_i\ri
 <h2>(Dis)advantages of the marginal likelihood</h2>
 <ul>
 <li>Avoids using the maximum <span class="math inline">\(X_{(m)}\)</span> both for model estimation and goodness-of-fit: no double dipping.</li>
-<li>Must also include the inequality constraint <span class="math inline">\(\sigma_0+\xi_0 (\max_{i} x_{i,(m)}-\mu_0) &gt; 0\)</span> on the optimization.</li>
+<li>Need to add the inequality constraint <span class="math inline">\(\sigma_0+\xi_0 (\max_{i} x_{i,(m)}-\mu_0) &gt; 0\)</span> on the optimization.</li>
 </ul>
+<div class="columns">
 <div class="column" style="width:50%;">
 <ul>
 <li>Discarding the largest observation leads to a loss of information: with <span class="math inline">\(m=4\)</span>, we calculate the efficiency for <span class="math inline">\(\boldsymbol{\vartheta}=(\mu=0, \sigma=1, \xi),\)</span><span class="math display">\[r(\boldsymbol{\vartheta})=\frac{ |\imath_{\text{marg}}(\boldsymbol{\vartheta})|^{1/3}}{|\imath_{\text{full}}(\boldsymbol{\vartheta})|^{1/3}},\]</span> where <span class="math inline">\(\imath\)</span> is the Fisher information.</li>
 </ul>
-</div><div class="columns">
-<div class="column" style="width:50%;">
+</div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="right">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-right">
 <figure>
-<p><img data-src="Block_size-presentation_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-right" style="width:90.0%"></p>
+<p><img data-src="Block_size-presentation_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-right" style="width:80.0%"></p>
 </figure>
 </div>
 </div>
@@ -925,7 +925,7 @@ t_{u,i} &amp;= 1 - H\left[n\mathsf{ECDF}(\nu_i; \boldsymbol{v}_b)-1; n, \nu_i\ri
 <h2>Marginal likelihood</h2>
 
 <img data-src="Block_size-presentation_files/figure-revealjs/fig-efficiency-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%" id="fig-efficiency"><p class="caption">
-Figure&nbsp;5: Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape <span class="math inline">\(\xi\)</span> for <span class="math inline">\(m \in \{2, 10\}\)</span> and <span class="math inline">\(n \in \{25,100\}\)</span> for different estimators, based on 1000 Monte Carlo samples (right).
+Figure&nbsp;5: Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape <span class="math inline">\(\xi\)</span> for <span class="math inline">\(m \in \{2, 10\}\)</span> and <span class="math inline">\(n \in \{25,100\}\)</span>.
 </p></section>
 <section>
 <section id="data-applications" class="title-slide slide level1 center">

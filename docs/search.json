@@ -263,14 +263,14 @@
     "href": "Block_size-presentation.html#disadvantages-of-the-marginal-likelihood",
     "title": "How long should a block be?",
     "section": "(Dis)advantages of the marginal likelihood",
-    "text": "(Dis)advantages of the marginal likelihood\n\nAvoids using the maximum \\(X_{(m)}\\) both for model estimation and goodness-of-fit: no double dipping.\nMust also include the inequality constraint \\(\\sigma_0+\\xi_0 (\\max_{i} x_{i,(m)}-\\mu_0) &gt; 0\\) on the optimization.\n\n\n\nDiscarding the largest observation leads to a loss of information: with \\(m=4\\), we calculate the efficiency for \\(\\boldsymbol{\\vartheta}=(\\mu=0, \\sigma=1, \\xi),\\)\\[r(\\boldsymbol{\\vartheta})=\\frac{ |\\imath_{\\text{marg}}(\\boldsymbol{\\vartheta})|^{1/3}}{|\\imath_{\\text{full}}(\\boldsymbol{\\vartheta})|^{1/3}},\\] where \\(\\imath\\) is the Fisher information."
+    "text": "(Dis)advantages of the marginal likelihood\n\nAvoids using the maximum \\(X_{(m)}\\) both for model estimation and goodness-of-fit: no double dipping.\nNeed to add the inequality constraint \\(\\sigma_0+\\xi_0 (\\max_{i} x_{i,(m)}-\\mu_0) &gt; 0\\) on the optimization.\n\n\n\n\nDiscarding the largest observation leads to a loss of information: with \\(m=4\\), we calculate the efficiency for \\(\\boldsymbol{\\vartheta}=(\\mu=0, \\sigma=1, \\xi),\\)\\[r(\\boldsymbol{\\vartheta})=\\frac{ |\\imath_{\\text{marg}}(\\boldsymbol{\\vartheta})|^{1/3}}{|\\imath_{\\text{full}}(\\boldsymbol{\\vartheta})|^{1/3}},\\] where \\(\\imath\\) is the Fisher information."
   },
   {
     "objectID": "Block_size-presentation.html#marginal-likelihood-1",
     "href": "Block_size-presentation.html#marginal-likelihood-1",
     "title": "How long should a block be?",
     "section": "Marginal likelihood",
-    "text": "Marginal likelihood\n\n\nFigure 5: Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape \\(\\xi\\) for \\(m \\in \\{2, 10\\}\\) and \\(n \\in \\{25,100\\}\\) for different estimators, based on 1000 Monte Carlo samples (right)."
+    "text": "Marginal likelihood\n\n\nFigure 5: Interval plots showing median, 50% and 90% intervals of the bias of maximum likelihood estimators of the shape parameters for datasets drawn from a GEV with shape \\(\\xi\\) for \\(m \\in \\{2, 10\\}\\) and \\(n \\in \\{25,100\\}\\)."
   },
   {
     "objectID": "Block_size-presentation.html#cheeseboro-wind-gusts",
